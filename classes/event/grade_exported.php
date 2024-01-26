@@ -24,8 +24,6 @@
 
 namespace gradeexport_group\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Grade export event class.
  *

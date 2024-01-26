@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace gradeexport_txt\event;
+namespace gradeexport_group\event;
 
 /**
  * TXT grade export events test cases.
  *
- * @package    gradeexport_txt
+ * @package    gradeexport_group
  * @copyright  2016 Zane Karl zkarl@oid.ucla.edu
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -39,10 +39,8 @@ class events_test extends \advanced_testcase {
         // There is no proper API to call to trigger this event, so what we are
         // doing here is simply making sure that the events returns the right information.
         $course = $this->getDataGenerator()->create_course();
-        $params = array(
-            'context' => \context_course::instance($course->id)
-        );
-        $event = \gradeexport_txt\event\grade_exported::create($params);
+        $params = ['context' => \context_course::instance($course->id)];
+        $event = \gradeexport_group\event\grade_exported::create($params);
         // Triggering and capturing the event.
         $sink = $this->redirectEvents();
         $event->trigger();
@@ -50,8 +48,8 @@ class events_test extends \advanced_testcase {
         $this->assertCount(1, $events);
         $event = reset($events);
         // Checking that the event contains the expected values.
-        $this->assertInstanceOf('\gradeexport_txt\event\grade_exported', $event);
+        $this->assertInstanceOf('\gradeexport_group\event\grade_exported', $event);
         $this->assertEquals(\context_course::instance($course->id), $event->get_context());
-        $this->assertEquals('txt', $event->get_export_type());
+        $this->assertEquals('group', $event->get_export_type());
     }
 }

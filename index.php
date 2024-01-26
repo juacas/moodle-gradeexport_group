@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once '../../../config.php';
-require_once $CFG->dirroot.'/grade/export/lib.php';
-require_once 'export_group_form.php';
+require_once('../../../config.php');
+require_once($CFG->dirroot.'/grade/export/lib.php');
+require_once('export_group_form.php');
 
-$id = required_param('id', PARAM_INT); // course id
+$id = required_param('id', PARAM_INT); // Course id.
 
-$PAGE->set_url('/grade/export/group/index.php', array('id'=>$id));
+$PAGE->set_url('/grade/export/group/index.php', ['id' => $id]);
 
-if (!$course = $DB->get_record('course', array('id'=>$id))) {
+if (!$course = $DB->get_record('course', ['id' => $id])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
@@ -43,7 +43,7 @@ if (!empty($CFG->gradepublishing)) {
 }
 
 $actionurl = new moodle_url('/grade/export/group/index.php');
-$formoptions =  (object)['course' => $course, 'context' => $context,];
+$formoptions = (object)['course' => $course, 'context' => $context];
 
 $mform = new export_group_form($actionurl, $formoptions);
 
@@ -62,7 +62,7 @@ groups_print_course_menu($course, 'index.php?id='.$id);
 echo '<div class="clearer"></div>';
 // Check the form data.
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/grade/export/index.php', array('id'=>$id)));
+    redirect(new moodle_url('/grade/export/index.php', ['id' => $id]));
 } else if ($data = $mform->get_data()) {
     // Use grader report as base to get the grades of the students.
     $grader = new grade_report_listing($course->id, $currentgroup, $context);
@@ -88,13 +88,13 @@ if ($mform->is_cancelled()) {
         // Create a new group.
         $groupid = groups_create_group((object) ['courseid' => $course->id,
                                                 'name' => $groupname,
-                                                'description' => get_string('gradesgroupdescription', 'gradeexport_group', 
+                                                'description' => get_string('gradesgroupdescription', 'gradeexport_group',
                                                 (object)['itemname' => $itemname,
                                                 'status' => $statusname,
                                                 ])]);
     }
 
-    
+
     // Get the students that meet the grading criteria: failed, approved, absent.
     $grader->load_users();
     $grader->load_final_grades();
@@ -102,44 +102,44 @@ if ($mform->is_cancelled()) {
     $gradeitem = $grader->get_gradeitem($itemid);
     $added = 0;
     // Add the selected users to the group.
-    foreach ($grades??[] as $userid => $grade) {
-       $value = $grade[$itemid];
-       $approved = $value->finalgrade >= $gradeitem->gradepass;
-       $absent = $value->finalgrade == false;
-       // Depending on the status, add the user to the group.
-       switch ($status) {
-           case 'failed':
-               if (!$approved && !$absent) {
-                   groups_add_member($groupid, $userid);
-                   $added++;
-               }
-               break;
-           case 'failednograde':
-               if (!$approved || $absent) {
-                   groups_add_member($groupid, $userid);
-                   $added++;
-               }
-               break;
-           case 'nograde':
-               if ($absent) {
-                   groups_add_member($groupid, $userid);
-                   $added++;
-               }
-               break;
-           case 'approved':
-               if ($approved) {
-                   groups_add_member($groupid, $userid);
-                   $added++;
-               }
-               break;
-       } 
+    foreach ($grades ?? [] as $userid => $grade) {
+        $value = $grade[$itemid];
+        $approved = $value->finalgrade >= $gradeitem->gradepass;
+        $absent = $value->finalgrade == false;
+        // Depending on the status, add the user to the group.
+        switch ($status) {
+            case 'failed':
+                if (!$approved && !$absent) {
+                    groups_add_member($groupid, $userid);
+                    $added++;
+                }
+                break;
+            case 'failednograde':
+                if (!$approved || $absent) {
+                    groups_add_member($groupid, $userid);
+                    $added++;
+                }
+                break;
+            case 'nograde':
+                if ($absent) {
+                    groups_add_member($groupid, $userid);
+                    $added++;
+                }
+                break;
+            case 'approved':
+                if ($approved) {
+                    groups_add_member($groupid, $userid);
+                    $added++;
+                }
+                break;
+        }
     }
     // Print a message with the number of students added to the group.
     echo $OUTPUT->notification(get_string('addedtogroup', 'gradeexport_group',
         (object) [
             'groupname' => $groupname,
             'added' => $added,
-            'url' => (new moodle_url('/group/members.php', ['group'=>$groupid, 'id'=>$course->id]))->out()
+            'url' => (new moodle_url('/group/members.php', ['group' => $groupid, 'id' => $course->id]))->out(),
             ]));
 }
 

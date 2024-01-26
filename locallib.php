@@ -35,7 +35,7 @@ class grade_report_listing extends grade_report_grader {
         parent::__construct($courseid, $gpr, $context, $page);
 
         // Don't collapse categories.
-        $this->collapsed =  ['aggregatesonly' => [], 'gradesonly' => []];
+        $this->collapsed = ['aggregatesonly' => [], 'gradesonly' => []];
 
         if (empty($CFG->enableoutcomes)) {
             $nooutcomes = false;
@@ -43,16 +43,16 @@ class grade_report_listing extends grade_report_grader {
             $nooutcomes = get_user_preferences('grade_report_shownooutcomes');
         }
 
-        // if user report preference set or site report setting set use it, otherwise use course or site setting
+        // If user report preference set or site report setting set use it, otherwise use course or site setting.
         $switch = $this->get_pref('aggregationposition');
         if ($switch == '') {
             $switch = grade_get_setting($this->courseid, 'aggregationposition', $CFG->grade_aggregationposition);
         }
-        // Grab the grade_tree for this course
+        // Grab the grade_tree for this course.
         $this->gtree = new grade_tree($this->courseid, true, $switch, $this->collapsed, $nooutcomes);
-        $this->sortitemid = $sortitemid;    
+        $this->sortitemid = $sortitemid;
     }
-    
+
     /**
      * Gets the gradetree object.
      */
@@ -90,7 +90,7 @@ class grade_report_listing extends grade_report_grader {
         });
         return $allgradeitems;
     }
-     public function get_gradeitem($itemid) {
+    public function get_gradeitem($itemid) {
         return $this->gtree->get_item($itemid);
     }
     public function get_grades() {

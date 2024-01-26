@@ -35,7 +35,7 @@ class export_group_form extends moodleform {
 
         $data = $this->_customdata;
         $mform->addElement('header', 'general', get_string('general', 'form'));
-       
+
         // Hidden course id.
         $mform->addElement('hidden', 'id', $data->course->id);
         $mform->setType('id', PARAM_INT);
@@ -43,18 +43,18 @@ class export_group_form extends moodleform {
         // Use grader report as base to get the grades of the students.
         $grader = new grade_report_listing($data->course->id, "0", $data->context);
         $items = $grader->get_item_names();
-       
+
         $mform->addElement('select', 'item', get_string('gradeitem', 'gradeexport_group'), $items);
         $mform->addRule('item', get_string('required'), 'required');
         // Select last element by default.
         $mform->setDefault('item', array_key_last($items));
         // Select for supended, failed+absent, absent, approved students.
-        $options = array(
+        $options = [
             'failed' => get_string('failed', 'gradeexport_group'),
             'failednograde' => get_string('failednograde', 'gradeexport_group'),
             'nograde' => get_string('nograde', 'gradeexport_group'),
             'approved' => get_string('approved', 'gradeexport_group'),
-        );
+        ];
         $mform->addElement('select', 'status', get_string('status', 'gradeexport_group'), $options);
         $mform->setDefault('status', 'failed');
         $mform->addRule('status', get_string('required'), 'required');
@@ -62,4 +62,3 @@ class export_group_form extends moodleform {
         $this->add_action_buttons();
     }
 }
-
