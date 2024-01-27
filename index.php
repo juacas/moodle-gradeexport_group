@@ -43,28 +43,32 @@ if (!empty($CFG->gradepublishing)) {
 }
 
 $actionurl = new moodle_url('/grade/export/group/index.php');
-$formoptions = (object)['course' => $course, 'context' => $context];
+$formoptions = (object)['course' => $course, 'context' => $context, 'id' => $course->id];
+
+// Don't use group modes. User can access all groups and users.
+
+// $groupmode    = groups_get_course_groupmode($course);   // Groups are being used.
+// $currentgroup = groups_get_course_group($course, true);
+// if (($groupmode == SEPARATEGROUPS) &&
+// (!$currentgroup) &&
+// (!has_capability('moodle/site:accessallgroups', $context))) {
+    
+//     echo $OUTPUT->heading(get_string("notingroup"));
+//     echo $OUTPUT->footer();
+//     die;
+// }
+// groups_print_course_menu($course, 'index.php?id='.$id);
 
 $mform = new export_group_form($actionurl, $formoptions);
 
-$groupmode    = groups_get_course_groupmode($course);   // Groups are being used.
-$currentgroup = groups_get_course_group($course, true);
-if (($groupmode == SEPARATEGROUPS) &&
-        (!$currentgroup) &&
-        (!has_capability('moodle/site:accessallgroups', $context))) {
-
-    echo $OUTPUT->heading(get_string("notingroup"));
-    echo $OUTPUT->footer();
-    die;
-}
-
-groups_print_course_menu($course, 'index.php?id='.$id);
 echo '<div class="clearer"></div>';
 // Check the form data.
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/grade/export/index.php', ['id' => $id]));
 } else if ($data = $mform->get_data()) {
     // Use grader report as base to get the grades of the students.
+    $groupid = $data->group;
+    $currentgroup = groups_get_group($groupid);
     $grader = new grade_report_listing($course->id, $currentgroup, $context);
     // Get itemname.
     $names = $grader->get_item_names();

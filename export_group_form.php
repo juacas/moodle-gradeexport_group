@@ -34,11 +34,28 @@ class export_group_form extends moodleform {
         $mform = $this->_form;
 
         $data = $this->_customdata;
-        $mform->addElement('header', 'general', get_string('general', 'form'));
+        // Header for source with help.
+        $mform->addElement('header', 'source', get_string('source', 'gradeexport_group'));
+        $mform->addHelpButton('source', 'source', 'gradeexport_group');
 
         // Hidden course id.
         $mform->addElement('hidden', 'id', $data->course->id);
         $mform->setType('id', PARAM_INT);
+        // Select group.
+        $groups = groups_get_all_groups($data->course->id);
+        // Add all groups option.
+        $groupoptions = ['0' => get_string('allparticipants')];
+        foreach ($groups as $group) {
+            // Get member count.
+            $members = groups_get_members($group->id);
+            $groupoptions[$group->id] = $group->name. " ( " . count($members) . " )";
+        }
+        $mform->addElement('select', 'group', get_string('group'), $groupoptions);
+        $mform->addRule('group', get_string('required'), 'required');
+        $mform->setDefault('group', array_key_first($groupoptions));
+        // Header for conditions with help.
+        $mform->addElement('header', 'conditions', get_string('conditions', 'gradeexport_group'));
+        $mform->addHelpButton('conditions', 'conditions', 'gradeexport_group');
         // Get Grade item from the course and create a multi-select box.
         // Use grader report as base to get the grades of the students.
         $grader = new grade_report_listing($data->course->id, "0", $data->context);
@@ -58,7 +75,29 @@ class export_group_form extends moodleform {
         $mform->addElement('select', 'status', get_string('status', 'gradeexport_group'), $options);
         $mform->setDefault('status', 'failed');
         $mform->addRule('status', get_string('required'), 'required');
+        // Header for target group with help.
+        $mform->addElement('header', 'targetgroup', get_string('targetgroup', 'gradeexport_group'));
+        $mform->addHelpButton('targetgroup', 'targetgroup', 'gradeexport_group');
+        // Name of the group.
+        $mform->addElement('text', 'groupname', get_string('groupname', 'gradeexport_group'));
+        $mform->addRule('groupname', get_string('required'), 'required');
+        $mform->setType('groupname', PARAM_TEXT);
+        $mform->setDefault('groupname', "Group {$items[array_key_last($items)]} - {$options['failed']}");
+        // Description of the group.
+        $mform->addElement('textarea', 'groupdescription', get_string('groupdescription', 'gradeexport_group'));
+        $mform->setType('groupdescription', PARAM_TEXT);
+        $mform->setDefault('groupdescription', get_string('gradesgroupdescription', 'gradeexport_group',
+            (object)['itemname' => $items[array_key_last($items)],
+            'status' => get_string('failed', 'gradeexport_group'),
+            ]));
 
+        // Checkbox for cleaning the group with help.
+        $mform->addElement('checkbox', 'cleangroup', get_string('cleangroup', 'gradeexport_group'));
+        $mform->setDefault('cleangroup', 0);
+        $mform->addHelpButton('cleangroup', 'cleangroup', 'gradeexport_group');
+
+        
         $this->add_action_buttons();
+
     }
 }
