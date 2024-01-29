@@ -69,6 +69,7 @@ if ($mform->is_cancelled()) {
     // Use grader report as base to get the grades of the students.
     $groupid = $data->group;
     $currentgroup = groups_get_group($groupid);
+    $groupname = $data->groupname;
     $grader = new grade_report_listing($course->id, $currentgroup, $context);
     // Get itemname.
     $names = $grader->get_item_names();
@@ -76,11 +77,7 @@ if ($mform->is_cancelled()) {
     $status = $data->status;
     $itemname = $names[$itemid];
     $statusname = get_string($data->status, 'gradeexport_group');
-    // Get or create a group named grades_{$itemname}_{$state}.
-    $groupname = 'grades_'.strtolower($itemname).'_'.$statusname;
-    if ($currentgroup) {
-        $groupname .= '_'.groups_get_group_name($currentgroup);
-    }
+  
     $groupid = groups_get_group_by_name($course->id, $groupname);
     if ($groupid) {
         // Empty and start over.
@@ -92,10 +89,8 @@ if ($mform->is_cancelled()) {
         // Create a new group.
         $groupid = groups_create_group((object) ['courseid' => $course->id,
                                                 'name' => $groupname,
-                                                'description' => get_string('gradesgroupdescription', 'gradeexport_group',
-                                                (object)['itemname' => $itemname,
-                                                'status' => $statusname,
-                                                ])]);
+                                                'description' => $data->groupdescription,
+                                                ]);
     }
 
 

@@ -22,8 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['addedtogroup'] = '{$a->added} students added to group <a href="{$a->url}">{$a->groupname}</a>';
-$string['eventgradeexported'] = 'Group grade exported';
-$string['pluginname'] = 'Group';
+$string['eventgradeexported'] = 'Grades exported to group';
+$string['pluginname'] = 'Edit group members from grades';
 $string['privacy:metadata'] = 'The Group grade export plugin does not store any personal data.';
 $string['group:publish'] = 'Publish Group grade export';
 $string['group:view'] = 'Use Group grade export';

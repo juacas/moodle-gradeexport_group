@@ -22,8 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['addedtogroup'] = 'Se han añadido {$a->added} estudiantes al grupo "<a href="{$a->url}">{$a->groupname}</a>"';
-$string['eventgradeexported'] = 'Grupo creado a partir de calificaciones';
-$string['pluginname'] = 'Notas a grupo';
+$string['eventgradeexported'] = 'Grupo modificado a partir de calificaciones';
+$string['pluginname'] = 'Definir grupo a partir de calificaciones';
 $string['privacy:metadata'] = 'El plugin de exportación de notas a grupo no almacena datos personales..';
 $string['group:publish'] = 'Exportar notas a grupo';
 $string['group:view'] = 'Usar exportación de notas a grupo';
