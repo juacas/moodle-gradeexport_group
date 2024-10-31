@@ -14,9 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use gradeexport_group\form\exportgroup_form;
+use gradeexport_group\group_export_grader;
+
 require_once('../../../config.php');
 require_once($CFG->dirroot.'/grade/export/lib.php');
-require_once('export_group_form.php');
+// require_once('export_group_form.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 
@@ -59,7 +62,7 @@ $formoptions = (object)['course' => $course, 'context' => $context, 'id' => $cou
 // }
 // groups_print_course_menu($course, 'index.php?id='.$id);
 
-$mform = new export_group_form($actionurl, $formoptions);
+$mform = new exportgroup_form($actionurl, $formoptions);
 
 echo '<div class="clearer"></div>';
 // Check the form data.
@@ -69,18 +72,15 @@ if ($mform->is_cancelled()) {
     // Use grader report as base to get the grades of the students.
     $groupid = $data->group;
     $currentgroup = groups_get_group($groupid);
-    $grader = new grade_report_listing($course->id, $currentgroup, $context);
+    $groupname = $data->groupname;
+    $grader = new group_export_grader($course->id, $currentgroup, $context);
     // Get itemname.
     $names = $grader->get_item_names();
     $itemid = $data->item;
     $status = $data->status;
     $itemname = $names[$itemid];
     $statusname = get_string($data->status, 'gradeexport_group');
-    // Get or create a group named grades_{$itemname}_{$state}.
-    $groupname = 'grades_'.strtolower($itemname).'_'.$statusname;
-    if ($currentgroup) {
-        $groupname .= '_'.groups_get_group_name($currentgroup);
-    }
+  
     $groupid = groups_get_group_by_name($course->id, $groupname);
     if ($groupid) {
         // Empty and start over.
@@ -92,10 +92,8 @@ if ($mform->is_cancelled()) {
         // Create a new group.
         $groupid = groups_create_group((object) ['courseid' => $course->id,
                                                 'name' => $groupname,
-                                                'description' => get_string('gradesgroupdescription', 'gradeexport_group',
-                                                (object)['itemname' => $itemname,
-                                                'status' => $statusname,
-                                                ])]);
+                                                'description' => $data->groupdescription,
+                                                ]);
     }
 
 
