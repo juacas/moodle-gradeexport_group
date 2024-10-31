@@ -21,13 +21,16 @@
  * @copyright   2023 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace gradeexport_group\form;
+use moodleform;
+use gradeexport_group\group_export_grader;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once('locallib.php');
+// require_once('locallib.php');
 require_once($CFG->dirroot.'/grade/lib.php');
 
-class export_group_form extends moodleform {
+class exportgroup_form extends moodleform {
     public function definition() {
         global $CFG, $DB;
 
@@ -58,7 +61,7 @@ class export_group_form extends moodleform {
         $mform->addHelpButton('conditions', 'conditions', 'gradeexport_group');
         // Get Grade item from the course and create a multi-select box.
         // Use grader report as base to get the grades of the students.
-        $grader = new grade_report_listing($data->course->id, "0", $data->context);
+        $grader = new group_export_grader($data->course->id, "0", $data->context);
         $items = $grader->get_item_names();
 
         $mform->addElement('select', 'item', get_string('gradeitem', 'gradeexport_group'), $items);

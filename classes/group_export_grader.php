@@ -21,12 +21,14 @@
  * @copyright  2023 Juan Pablo de Castro <juanpablo.decastro@uva.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace gradeexport_group;
+use grade_tree;
 
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 
-class grade_report_listing extends grade_report_grader {
+class group_export_grader extends \grade_report_grader {
     /**
      * Constructor to override the calculation of grade_tree (avoid removing collapsed categories).
      */
