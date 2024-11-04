@@ -23,6 +23,7 @@
  */
 namespace gradeexport_group;
 use grade_tree;
+use grade_category;
 
 defined('MOODLE_INTERNAL') || die;
 
