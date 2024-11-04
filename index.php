@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use gradeexport_group\form\exportgroup_form;
+use gradeexport_group\exportgroup_form;
 use gradeexport_group\group_export_grader;
 
 require_once('../../../config.php');

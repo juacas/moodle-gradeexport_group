@@ -21,7 +21,7 @@
  * @copyright   2023 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace gradeexport_group\form;
+namespace gradeexport_group;
 use moodleform;
 use gradeexport_group\group_export_grader;
 
@@ -98,9 +98,6 @@ class exportgroup_form extends moodleform {
         $mform->addElement('checkbox', 'cleangroup', get_string('cleangroup', 'gradeexport_group'));
         $mform->setDefault('cleangroup', 0);
         $mform->addHelpButton('cleangroup', 'cleangroup', 'gradeexport_group');
-
-        
         $this->add_action_buttons();
-
     }
 }
