@@ -19,7 +19,6 @@ use gradeexport_group\group_export_grader;
 
 require_once('../../../config.php');
 require_once($CFG->dirroot.'/grade/export/lib.php');
-// require_once('export_group_form.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 

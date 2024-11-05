@@ -22,15 +22,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace gradeexport_group;
-use moodleform;
-use gradeexport_group\group_export_grader;
 
 defined('MOODLE_INTERNAL') || die;
 
-// require_once('locallib.php');
-require_once($CFG->dirroot.'/grade/lib.php');
-
-class exportgroup_form extends moodleform {
+class exportgroup_form extends \moodleform {
     public function definition() {
         global $CFG, $DB;
 
