@@ -21,16 +21,11 @@
  * @copyright   2023 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace gradeexport_group\form;
-use moodleform;
-use gradeexport_group\group_export_grader;
+namespace gradeexport_group;
 
 defined('MOODLE_INTERNAL') || die;
 
-// require_once('locallib.php');
-require_once($CFG->dirroot.'/grade/lib.php');
-
-class exportgroup_form extends moodleform {
+class exportgroup_form extends \moodleform {
     public function definition() {
         global $CFG, $DB;
 
@@ -98,9 +93,6 @@ class exportgroup_form extends moodleform {
         $mform->addElement('checkbox', 'cleangroup', get_string('cleangroup', 'gradeexport_group'));
         $mform->setDefault('cleangroup', 0);
         $mform->addHelpButton('cleangroup', 'cleangroup', 'gradeexport_group');
-
-        
         $this->add_action_buttons();
-
     }
 }

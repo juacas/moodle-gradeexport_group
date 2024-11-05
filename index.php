@@ -14,12 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use gradeexport_group\form\exportgroup_form;
+use gradeexport_group\exportgroup_form;
 use gradeexport_group\group_export_grader;
 
 require_once('../../../config.php');
 require_once($CFG->dirroot.'/grade/export/lib.php');
-// require_once('export_group_form.php');
+// Patch for classloader missing exportgroup_form and group_export_grader classes (at UVa servers).
+require_once('classes/exportgroup_form.php');
+require_once('classes/group_export_grader.php');
+// End of patch.
 
 $id = required_param('id', PARAM_INT); // Course id.
 
@@ -93,6 +96,7 @@ if ($mform->is_cancelled()) {
         $groupid = groups_create_group((object) ['courseid' => $course->id,
                                                 'name' => $groupname,
                                                 'description' => $data->groupdescription,
+                                                'visibility' => 3,
                                                 ]);
     }
 
