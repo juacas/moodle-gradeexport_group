@@ -96,6 +96,7 @@ if ($mform->is_cancelled()) {
         $groupid = groups_create_group((object) ['courseid' => $course->id,
                                                 'name' => $groupname,
                                                 'description' => $data->groupdescription,
+                                                'visibility' => 3,
                                                 ]);
     }
 
