@@ -19,6 +19,10 @@ use gradeexport_group\group_export_grader;
 
 require_once('../../../config.php');
 require_once($CFG->dirroot.'/grade/export/lib.php');
+// Patch for classloader missing exportgroup_form and group_export_grader classes (at UVa servers).
+require_once('classes/exportgroup_form.php');
+require_once('classes/group_export_grader.php');
+// End of patch.
 
 $id = required_param('id', PARAM_INT); // Course id.
 
