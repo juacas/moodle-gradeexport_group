@@ -44,4 +44,5 @@ See also
 
 Change log
 ==========
+- v1.0.4 Graded status added to export.
 - v1.0.0 Initial release.

@@ -132,6 +132,12 @@ if ($mform->is_cancelled()) {
                     $added++;
                 }
                 break;
+            case 'graded':
+                if ($value->finalgrade !== null && $value->finalgrade !== false) {
+                    groups_add_member($groupid, $userid);
+                    $added++;
+                }
+                break;
             case 'approved':
                 if ($approved) {
                     groups_add_member($groupid, $userid);

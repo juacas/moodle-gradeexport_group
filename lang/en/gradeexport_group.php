@@ -31,6 +31,7 @@ $string['gradeitem'] = 'Grade item';
 $string['failed'] = 'Failed';
 $string['failednograde'] = 'Failed or no grade';
 $string['nograde'] = 'No grade';
+$string['graded'] = 'Graded';
 $string['approved'] = 'Passed';
 $string['gradesgroupdescription'] = 'Group with students that has a grade in {$a->itemname}: {$a->status}';
 $string['status'] = 'Condition of the grades to export to group';
