@@ -31,6 +31,7 @@ $string['gradeitem'] = 'Elemento de calificación';
 $string['failed'] = 'Suspenso';
 $string['failednograde'] = 'Suspenso o sin nota';
 $string['nograde'] = 'Sin nota';
+$string['graded'] = 'Calificado';
 $string['approved'] = 'Aprobado';
 $string['gradesgroupdescription'] = 'Grupo con estudiantes que tienen "{$a->itemname}" con calificación: {$a->status}';
 $string['status'] = 'Criterio de las calificaciones para exportar al grupo';

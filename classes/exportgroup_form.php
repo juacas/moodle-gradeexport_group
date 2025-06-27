@@ -68,6 +68,7 @@ class exportgroup_form extends \moodleform {
             'failed' => get_string('failed', 'gradeexport_group'),
             'failednograde' => get_string('failednograde', 'gradeexport_group'),
             'nograde' => get_string('nograde', 'gradeexport_group'),
+            'graded' => get_string('graded', 'gradeexport_group'),
             'approved' => get_string('approved', 'gradeexport_group'),
         ];
         $mform->addElement('select', 'status', get_string('status', 'gradeexport_group'), $options);
