@@ -14,4 +14,14 @@ $observers = [
         'callback' => '\\gradeexport_group\\observer::user_graded',
         'priority' => 9999,
     ],
+    [
+        'eventname' => '\\core\\event\\group_member_added',
+        'callback' => '\\gradeexport_group\\observer::group_member_added',
+        'priority' => 9999,
+    ],
+    [
+        'eventname' => '\\core\\event\\group_member_removed',
+        'callback' => '\\gradeexport_group\\observer::group_member_removed',
+        'priority' => 9999,
+    ],
 ];

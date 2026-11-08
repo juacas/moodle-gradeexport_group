@@ -22,6 +22,8 @@ class rule_manager {
     private static array $rulecache = [];
     /** @var array Request-local index of rules by course and grade item. */
     private static array $itemrulecache = [];
+    /** @var array Re-entry locks for group membership event propagation. */
+    private static array $sourceeventlocks = [];
 
     /** Get all rules configured for a course. */
     public static function get_rules(int $courseid): array {
@@ -112,10 +114,49 @@ class rule_manager {
             unset($rules[$replacekey]);
         }
         $key = implode(':', [(int)$rule['groupid'], (int)$rule['sourcegroupid'], (int)$rule['itemid'], $rule['status']]);
+        unset($rules[$key]);
+        self::validate_no_new_cycle($rules, (int)$rule['sourcegroupid'], (int)$rule['groupid']);
         $rules[$key] = $rule;
         self::write_rules($courseid, $rules);
         unset(self::$rulecache[$courseid]);
         unset(self::$itemrulecache[$courseid]);
+    }
+
+    /** Reject a newly introduced source-to-target edge if it would close a cycle. */
+    private static function validate_no_new_cycle(array $rules, int $sourcegroupid, int $targetgroupid): void {
+        // Source 0 means all participants and is not a group-to-group edge.
+        if ($sourcegroupid <= 0) {
+            return;
+        }
+        $graph = [];
+        foreach ($rules as $existingrule) {
+            $sourceid = (int)$existingrule['sourcegroupid'];
+            $targetid = (int)$existingrule['groupid'];
+            if ($sourceid > 0) {
+                $graph[$sourceid][$targetid] = true;
+            }
+        }
+        // An edge that already exists does not introduce a new cycle.
+        if (isset($graph[$sourcegroupid][$targetgroupid])) {
+            return;
+        }
+        $pending = [$targetgroupid];
+        $visited = [];
+        while ($pending) {
+            $current = (int)array_pop($pending);
+            if ($current === $sourcegroupid) {
+                throw new \moodle_exception('rulecycle', 'gradeexport_group');
+            }
+            if (isset($visited[$current])) {
+                continue;
+            }
+            $visited[$current] = true;
+            foreach (array_keys($graph[$current] ?? []) as $next) {
+                if (!isset($visited[$next])) {
+                    $pending[] = (int)$next;
+                }
+            }
+        }
     }
 
     /** Delete one rule by its stored key. */
@@ -133,6 +174,11 @@ class rule_manager {
 
     /** Persist the complete course rule set. */
     private static function write_rules(int $courseid, array $rules): void {
+        foreach ($rules as &$rule) {
+            // This option applies only to one-time exports, never to scheduled rules.
+            unset($rule['cleangroup']);
+        }
+        unset($rule);
         $handler = rules_handler::create();
         $field = self::ensure_field();
         $data = $handler->get_instance_fields_data([(int)$field->get('id') => $field], $courseid);
@@ -284,6 +330,102 @@ class rule_manager {
             }
         }
         return $eligible;
+    }
+
+    /** Reapply rules sourced from a group after a member is added to it. */
+    public static function update_source_group_member(int $courseid, int $sourcegroupid, int $userid): void {
+        if ($courseid <= 0 || $sourcegroupid <= 0 || $userid <= 0) {
+            return;
+        }
+        $lockkey = $courseid . ':' . $userid . ':' . $sourcegroupid;
+        if (isset(self::$sourceeventlocks[$lockkey])) {
+            return;
+        }
+        self::$sourceeventlocks[$lockkey] = true;
+        try {
+            $itemids = [];
+            foreach (self::get_rules($courseid) as $rule) {
+                if ((int)$rule['sourcegroupid'] === $sourcegroupid) {
+                    $itemids[(int)$rule['itemid']] = true;
+                }
+            }
+            foreach (array_keys($itemids) as $itemid) {
+                $grade = \grade_grade::fetch(['itemid' => $itemid, 'userid' => $userid]);
+                self::update_user($courseid, (int)$itemid, $userid, $grade ? $grade->finalgrade : null);
+            }
+        } finally {
+            unset(self::$sourceeventlocks[$lockkey]);
+        }
+    }
+
+    /** Remove a user from all targets of rules sourced by a group they left. */
+    public static function remove_user_from_source_group_targets(
+            int $courseid, int $sourcegroupid, int $userid): void {
+        if ($courseid <= 0 || $sourcegroupid <= 0 || $userid <= 0) {
+            return;
+        }
+        $lockkey = $courseid . ':' . $userid . ':' . $sourcegroupid;
+        if (isset(self::$sourceeventlocks[$lockkey])) {
+            return;
+        }
+        self::$sourceeventlocks[$lockkey] = true;
+        try {
+            self::remove_user_from_source_group_targets_locked($courseid, $sourcegroupid, $userid);
+        } finally {
+            unset(self::$sourceeventlocks[$lockkey]);
+        }
+    }
+
+    /** Reconcile affected targets against every rule that targets each group. */
+    private static function remove_user_from_source_group_targets_locked(
+            int $courseid, int $sourcegroupid, int $userid): void {
+        self::load_group_library();
+        $rules = self::get_rules($courseid);
+        $targetgroupids = [];
+        foreach ($rules as $rule) {
+            if ((int)$rule['sourcegroupid'] === $sourcegroupid) {
+                $targetgroupids[(int)$rule['groupid']] = true;
+            }
+        }
+        if (!$targetgroupids) {
+            return;
+        }
+        $affectedtargets = $targetgroupids;
+        $membergroupids = array_fill_keys(
+            array_map('intval', array_keys(groups_get_all_groups($courseid, $userid))),
+            true
+        );
+        $grades = [];
+        $gradeitems = [];
+        foreach ($rules as $rule) {
+            $targetgroupid = (int)$rule['groupid'];
+            if (!isset($affectedtargets[$targetgroupid])) {
+                continue;
+            }
+            $sourceid = (int)$rule['sourcegroupid'];
+            if ($sourceid && !isset($membergroupids[$sourceid])) {
+                continue;
+            }
+            $itemid = (int)$rule['itemid'];
+            if (!array_key_exists($itemid, $grades)) {
+                $grade = \grade_grade::fetch(['itemid' => $itemid, 'userid' => $userid]);
+                $grades[$itemid] = $grade ? $grade->finalgrade : null;
+                $gradeitems[$itemid] = \grade_item::fetch(['id' => $itemid, 'courseid' => $courseid]);
+            }
+            $gradeitem = $gradeitems[$itemid];
+            if ($gradeitem && self::matches($grades[$itemid], (float)$gradeitem->gradepass, $rule['status'])) {
+                // At least one remaining applicable rule keeps the user in this target.
+                unset($targetgroupids[$targetgroupid]);
+            }
+        }
+        foreach (array_keys($targetgroupids) as $targetgroupid) {
+            $targetgroup = groups_get_group((int)$targetgroupid);
+            if ($targetgroup && (int)$targetgroup->courseid === $courseid) {
+                if (groups_is_member((int)$targetgroup->id, $userid)) {
+                    groups_remove_member($targetgroup, $userid);
+                }
+            }
+        }
     }
 
     /** Update one user's membership for rules matching the changed grade item only. */
