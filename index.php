@@ -109,6 +109,8 @@ if ($mform->is_cancelled()) {
     $grader = new group_export_grader($course->id, $currentgroup, $context);
     $itemid = $data->item;
     $status = $data->status;
+    // Scheduled rules maintain memberships incrementally and must never clear the group.
+    $cleangroup = empty($data->autoupdate) && !empty($data->cleangroup);
   
     $groupid = groups_get_group_by_name($course->id, $groupname);
     if (!$groupid) {
@@ -135,7 +137,6 @@ if ($mform->is_cancelled()) {
             'sourcegroupid' => $sourcegroupid,
             'itemid' => (int)$itemid,
             'status' => $status,
-            'cleangroup' => !empty($data->cleangroup),
         ];
         if ($oldrulekey !== '') {
             \gradeexport_group\rule_manager::save_rules($course->id, $newrule, $oldrulekey);
@@ -160,14 +161,14 @@ if ($mform->is_cancelled()) {
             'sourcegroupid' => $sourcegroupid,
             'itemid' => (int)$itemid,
             'status' => $status,
-            'cleangroup' => !empty($data->cleangroup),
+            'cleangroup' => $cleangroup,
         ],
         $grades ?? [],
         $users ?? [],
         $oldrule,
         $rules,
         $oldrulekey !== '' ? $oldrulekey : null,
-        !empty($data->cleangroup),
+        $cleangroup,
         !empty($data->autoupdate)
     );
     // Print a message with the number of students added to the group.
@@ -200,19 +201,31 @@ if ($rules) {
     ];
     $grader = new group_export_grader($course->id, '0', $context);
     $itemnames = $grader->get_item_names();
+    $groupcounts = [];
+    $getmembercount = static function($group) use (&$groupcounts, $DB): int {
+        $groupid = (int)$group->id;
+        if (!array_key_exists($groupid, $groupcounts)) {
+            $groupcounts[$groupid] = $DB->count_records('groups_members', ['groupid' => $groupid]);
+        }
+        return $groupcounts[$groupid];
+    };
     foreach ($rules as $rulekey => $rule) {
         $targetgroup = groups_get_group((int)$rule['groupid']);
         $sourcegroupid = (int)$rule['sourcegroupid'];
         $sourcegroup = $sourcegroupid ? groups_get_group($sourcegroupid) : null;
         $source = $sourcegroupid ? ($sourcegroup ? $sourcegroup->name : '') : get_string('allparticipants');
-        $targetlabel = $targetgroup ? format_string($targetgroup->name) : get_string('missinggroup', 'gradeexport_group');
+        $targetlabel = $targetgroup
+            ? format_string($targetgroup->name) . ' (' . $getmembercount($targetgroup) . ')'
+            : get_string('missinggroup', 'gradeexport_group');
         if ($targetgroup) {
             $targetlabel = html_writer::link(new moodle_url('/group/members.php', [
                 'group' => $targetgroup->id,
                 'id' => $course->id,
             ]), $targetlabel);
         }
-        $sourcelabel = $source !== '' ? format_string($source) : get_string('missinggroup', 'gradeexport_group');
+        $sourcelabel = $sourcegroup
+            ? format_string($sourcegroup->name) . ' (' . $getmembercount($sourcegroup) . ')'
+            : ($source !== '' ? format_string($source) : get_string('missinggroup', 'gradeexport_group'));
         if ($sourcegroup) {
             $sourcelabel = html_writer::link(new moodle_url('/group/members.php', [
                 'group' => $sourcegroup->id,

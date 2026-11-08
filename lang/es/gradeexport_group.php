@@ -52,3 +52,4 @@ $string['missinggroup'] = 'Grupo eliminado';
 $string['missingitem'] = 'Elemento de calificación eliminado';
 $string['addrule'] = 'Añadir una regla';
 $string['editingrule'] = 'Editando una regla.';
+$string['rulecycle'] = 'La regla no se puede guardar porque crearía un ciclo entre grupos.';

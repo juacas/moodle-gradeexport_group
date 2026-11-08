@@ -22,4 +22,22 @@ class observer {
             $grade->finalgrade
         );
     }
+
+    /** Reapply rules that use the updated group as their source. */
+    public static function group_member_added(\core\event\group_member_added $event): void {
+        rule_manager::update_source_group_member(
+            (int)$event->courseid,
+            (int)$event->objectid,
+            (int)$event->relateduserid
+        );
+    }
+
+    /** Remove the user from target groups when they leave a source group. */
+    public static function group_member_removed(\core\event\group_member_removed $event): void {
+        rule_manager::remove_user_from_source_group_targets(
+            (int)$event->courseid,
+            (int)$event->objectid,
+            (int)$event->relateduserid
+        );
+    }
 }
