@@ -24,6 +24,7 @@
 $string['addedtogroup'] = 'Se han añadido {$a->added} estudiantes al grupo "<a href="{$a->url}">{$a->groupname}</a>"';
 $string['eventgradeexported'] = 'Grupo modificado a partir de calificaciones';
 $string['pluginname'] = 'Definir grupo a partir de calificaciones';
+$string['creategroupsfromgrades'] = 'Crear grupos desde calificaciones';
 $string['privacy:metadata'] = 'El plugin de exportación de notas a grupo no almacena datos personales..';
 $string['group:publish'] = 'Exportar notas a grupo';
 $string['group:view'] = 'Usar exportación de notas a grupo';
@@ -50,6 +51,5 @@ $string['autoupdate_help'] = 'Guarda esta condición como regla del curso. Puede
 $string['rulesheading'] = 'Reglas de actualización automática';
 $string['missinggroup'] = 'Grupo eliminado';
 $string['missingitem'] = 'Elemento de calificación eliminado';
-$string['addrule'] = 'Añadir una regla';
 $string['editingrule'] = 'Editando una regla.';
 $string['rulecycle'] = 'La regla no se puede guardar porque crearía un ciclo entre grupos.';

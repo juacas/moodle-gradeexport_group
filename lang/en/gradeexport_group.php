@@ -23,7 +23,8 @@
  */
 $string['addedtogroup'] = '{$a->added} students added to group <a href="{$a->url}">{$a->groupname}</a>';
 $string['eventgradeexported'] = 'Grades exported to group';
-$string['pluginname'] = 'Add group members from grades';
+$string['pluginname'] = 'Update group members from grades';
+$string['creategroupsfromgrades'] = 'Update groups from grades';
 $string['privacy:metadata'] = 'The Group grade export plugin does not store any personal data.';
 $string['group:publish'] = 'Publish Group grade export';
 $string['group:view'] = 'Use Group grade export';
@@ -50,6 +51,5 @@ $string['autoupdate_help'] = 'Save this condition as a course rule. You can conf
 $string['rulesheading'] = 'Automatic update rules';
 $string['missinggroup'] = 'Deleted group';
 $string['missingitem'] = 'Deleted grade item';
-$string['addrule'] = 'Add a rule';
 $string['editingrule'] = 'Editing a rule.';
 $string['rulecycle'] = 'This rule cannot be saved because it would create a cycle between groups.';

@@ -184,12 +184,7 @@ $rules = \gradeexport_group\rule_manager::get_rules($course->id);
 if ($rules) {
     echo $OUTPUT->heading(get_string('rulesheading', 'gradeexport_group'), 3);
     if ($editrule !== '') {
-        echo $OUTPUT->notification(get_string('editingrule', 'gradeexport_group') . ' ' .
-            html_writer::link(new moodle_url('/grade/export/group/index.php', ['id' => $id]),
-                get_string('addrule', 'gradeexport_group')), 'info');
-    } else {
-        echo html_writer::div(html_writer::link(new moodle_url('/grade/export/group/index.php', ['id' => $id]),
-            get_string('addrule', 'gradeexport_group')), 'mb-3');
+        echo $OUTPUT->notification(get_string('editingrule', 'gradeexport_group'), 'info');
     }
     $ruletable = new html_table();
     $ruletable->head = [

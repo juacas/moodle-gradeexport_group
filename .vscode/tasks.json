@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sincronizar este proyecto ahora",
+      "type": "process",
+      "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
+      "args": [
+        "sync"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Activar vigilancia Watchman para este proyecto",
+      "type": "process",
+      "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
+      "args": [
+        "watch"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Detener vigilancia Watchman de este proyecto",
+      "type": "process",
+      "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
+      "args": [
+        "stop"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}
