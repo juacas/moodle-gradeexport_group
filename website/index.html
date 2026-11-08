@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create Moodle groups from gradebook criteria and keep them up to date automatically.">
+  <meta name="theme-color" content="#081426">
+  <meta property="og:title" content="Grade export to group · Moodle">
+  <meta property="og:description" content="Turn grade criteria into groups for activity availability and targeted communication.">
+  <meta property="og:type" content="website">
+  <title>Grade export to group · Create Moodle groups from grades</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="#home" aria-label="Grade export to group, home">
+      <img src="assets/icon.svg" alt="" width="34" height="34">
+      <span>Grade export to group</span>
+    </a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#use-cases">Use cases</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="https://marketplace.moodle.com/plugins/gradeexport_group">Moodle Plugins</a>
+      <a class="github" href="https://github.com/juacas/moodle-gradeexport_group">GitHub ↗</a>
+      <a href="es/">ES</a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero shell">
+      <div>
+        <p class="eyebrow"><span class="dot"></span> Open source · GPLv3+</p>
+        <h1>From the gradebook to <em>groups that make a difference.</em></h1>
+        <p class="lede">Create Moodle groups from precise grade criteria and use them to adapt the course to what each student needs.</p>
+        <div class="actions">
+          <a class="button primary" href="https://marketplace.moodle.com/plugins/gradeexport_group">Get it from Moodle Plugins <span>↗</span></a>
+          <a class="button quiet" href="#use-cases">Explore use cases <span>↓</span></a>
+        </div>
+        <div class="compat"><span>Moodle 4.1+</span><span>Automatic rules</span><span>Standard Moodle groups</span></div>
+      </div>
+
+      <div class="preview-wrap" role="img" aria-label="Illustration of grade results and groups created from them">
+        <div class="glow glow-blue"></div><div class="glow glow-teal"></div>
+        <div class="preview">
+          <div class="windowbar"><i></i><i></i><i></i><strong>Course grades</strong><span>•••</span></div>
+          <div class="grade-table">
+            <div class="grade-head"><span>Student</span><span>Quiz 2</span><span>Group</span></div>
+            <div class="grade-row"><strong>Alex Rivera</strong><span class="score">42 / 100</span><span class="pill pill-fail">Needs support</span></div>
+            <div class="grade-row"><strong>Sam Lee</strong><span class="score">78 / 100</span><span class="pill pill-pass">On track</span></div>
+            <div class="grade-row"><strong>Morgan Diaz</strong><span class="score">35 / 100</span><span class="pill pill-fail">Needs support</span></div>
+            <div class="target-chip"><b>✓</b> Support · Partial assessments</div>
+            <div class="target-chip"><b>↻</b> Updates when grades change</div>
+          </div>
+          <div class="float-note"><strong>Groups with a purpose</strong><small>built from criteria you already use</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof shell" aria-label="Key benefits">
+      <div><strong>Gradebook criteria</strong><span>Grades, pass status and missing marks</span></div>
+      <div><strong>Reusable rules</strong><span>Update groups when grades change</span></div>
+      <div><strong>Built into Moodle</strong><span>Use groups for availability and communication</span></div>
+    </section>
+
+    <section class="section shell" id="use-cases">
+      <div class="section-heading">
+        <p class="eyebrow">Turn a condition into a useful next step</p>
+        <h2>The right groups make <em>what comes next clearer.</em></h2>
+      </div>
+      <div class="cases">
+        <article class="case case-blue">
+          <span class="case-icon" aria-hidden="true">＋</span>
+          <h3>Create groups manually</h3>
+          <p>Choose a grade item or category, set a criterion, and create a group with the students who meet it.</p>
+          <span class="number">01</span>
+        </article>
+        <article class="case case-teal">
+          <span class="case-icon" aria-hidden="true">↻</span>
+          <h3>Track partial assessments</h3>
+          <p>Keep a group up to date with students who have not passed a test. Automatic rules adjust membership when grades change.</p>
+          <span class="number">02</span>
+        </article>
+        <article class="case case-amber">
+          <span class="case-icon" aria-hidden="true">⌑</span>
+          <h3>Adapt activity availability</h3>
+          <p>Use a group as an availability condition to open support activities or show resources based on progress.</p>
+          <span class="number">03</span>
+        </article>
+        <article class="case case-violet">
+          <span class="case-icon" aria-hidden="true">✉</span>
+          <h3>Communicate with precision</h3>
+          <p>Send announcements and guidance to the groups that need them, without finding students one by one.</p>
+          <span class="number">04</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow" id="how-it-works">
+      <div class="workflow-inner shell section">
+        <div>
+          <p class="eyebrow">Easy to configure</p>
+          <h2>Set the criterion.<br><em>Moodle maintains the group.</em></h2>
+          <p class="workflow-copy">Create a rule from grade export to groups. Choose the source group, grade item, condition and destination. Combine rules to populate one target group.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><span>01</span><div><h3>Select the grades</h3><p>Use a course total, category or graded activity.</p></div></div>
+          <div class="step"><span>02</span><div><h3>Define who meets the criterion</h3><p>Include failed, passed, ungraded or graded students.</p></div></div>
+          <div class="step"><span>03</span><div><h3>Put the group to work</h3><p>Set availability, organize support or send a targeted message.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell">
+      <div class="cta">
+        <div>
+          <h2>Turn your criteria into useful groups.</h2>
+          <p>Grade export to group is an open source plugin for creating and maintaining Moodle groups from the gradebook.</p>
+        </div>
+        <a class="button button-light" href="https://marketplace.moodle.com/plugins/gradeexport_group">Get the plugin <span>↗</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-content">
+      <div class="footer-intro">
+        <a class="brand" href="#home"><img src="assets/icon.svg" alt="" width="38" height="38"><span>Grade export to group</span></a>
+        <p>An open tool for creating Moodle groups from gradebook criteria.</p>
+      </div>
+      <nav class="footer-column" aria-label="Resources">
+        <h2>Resources</h2>
+        <a href="https://github.com/juacas/moodle-gradeexport_group">GitHub source</a>
+        <a href="https://github.com/juacas/moodle-gradeexport_group/issues">Issues</a>
+        <a href="https://marketplace.moodle.com/plugins/gradeexport_group">Moodle Plugins</a>
+      </nav>
+      <div class="footer-column">
+        <h2>Attribution</h2>
+        <span>Developed by Juan Pablo de Castro</span>
+        <span>GNU GPL v3 or later</span>
+        <a href="es/">Versión en español</a>
+      </div>
+    </div>
+    <div class="shell partner-row" aria-label="Institutions">
+      <span class="partner-logo"><img src="assets/logo-cuatricromia-negativo.png" alt="University of Valladolid" loading="lazy"></span>
+      <span class="partner-logo"><img src="assets/eduvalab-logo.png" alt="EdUVALab" loading="lazy"></span>
+    </div>
+    <div class="shell footer-bottom">
+      <span>Grade export to group · Moodle plugin</span>
+      <span>© Juan Pablo de Castro · GPLv3+</span>
+    </div>
+  </footer>
+</body>
+</html>
