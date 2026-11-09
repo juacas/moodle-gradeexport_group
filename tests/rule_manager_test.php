@@ -5,12 +5,24 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace gradeexport_group;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Tests for scheduled group rules and membership event handling. */
+/**
+ * Verify cycle checks, grade-based memberships and event propagation for automatic group rules.
+ *
+ * @package    gradeexport_group
+ * @copyright 2026 Juan Pablo de Castro <juanpablo.decastro@uva.es>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class rule_manager_test extends \advanced_testcase {
 
     protected function setUp(): void {
@@ -20,7 +32,9 @@ class rule_manager_test extends \advanced_testcase {
         $this->setAdminUser();
     }
 
-    /** A new rule is rejected if its source-to-target edge closes a direct or indirect cycle. */
+    /**
+     * Reject both a self-reference and an indirect path that would close a cycle.
+     */
     public function test_rejects_new_direct_and_indirect_cycles(): void {
         $course = $this->getDataGenerator()->create_course();
         $groupa = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
@@ -45,7 +59,9 @@ class rule_manager_test extends \advanced_testcase {
         }
     }
 
-    /** Acyclic chains and all-participant rules remain valid. */
+    /**
+     * Accept acyclic source chains and rules that use all course participants as their source.
+     */
     public function test_accepts_acyclic_rules_and_all_participants_source(): void {
         $course = $this->getDataGenerator()->create_course();
         $groupa = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
@@ -59,7 +75,9 @@ class rule_manager_test extends \advanced_testcase {
         $this->assertCount(3, rule_manager::get_rules($course->id));
     }
 
-    /** Existing cycles are left alone; cycle validation applies to the new edge only. */
+    /**
+     * Preserve legacy cycles and validate only the edge being added to the existing rule set.
+     */
     public function test_does_not_scan_or_reject_preexisting_cycles(): void {
         $course = $this->getDataGenerator()->create_course();
         $groupa = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
@@ -79,7 +97,9 @@ class rule_manager_test extends \advanced_testcase {
         $this->assertCount(3, rule_manager::get_rules($course->id));
     }
 
-    /** A user stays in a shared target only when another target rule still qualifies. */
+    /**
+     * Keep a shared target membership only when another source rule still qualifies the user.
+     */
     public function test_source_group_removal_evaluates_all_rules_for_each_target(): void {
         $course = $this->getDataGenerator()->create_course();
         $student = $this->getDataGenerator()->create_user();
@@ -98,7 +118,7 @@ class rule_manager_test extends \advanced_testcase {
         groups_add_member($keepgroup, $student);
         groups_add_member($removegroup, $student);
 
-        // sourcea's rules stop applying after removal. sourceb keeps keepgroup; sourcec does
+        // Source A's rules stop applying after removal. Source B keeps the student in keepgroup; source C does
         // not meet the condition for removegroup.
         rule_manager::save_rule($course->id, $this->rule($sourcea->id, $keepgroup->id, $item1->id, 'failed'));
         rule_manager::save_rule($course->id, $this->rule($sourceb->id, $keepgroup->id, $item1->id, 'approved'));
@@ -112,7 +132,9 @@ class rule_manager_test extends \advanced_testcase {
         $this->assertFalse(groups_is_member($removegroup->id, $student->id));
     }
 
-    /** Group-added events propagate through an acyclic chain. */
+    /**
+     * Propagate a source group addition through successive rules in an acyclic chain.
+     */
     public function test_group_added_rules_propagate_through_acyclic_chain(): void {
         $course = $this->getDataGenerator()->create_course();
         $student = $this->getDataGenerator()->create_user();
@@ -133,7 +155,9 @@ class rule_manager_test extends \advanced_testcase {
         $this->assertTrue(groups_is_member($target->id, $student->id));
     }
 
-    /** A repeated event for the same source cannot re-enter its active processing path. */
+    /**
+     * Short-circuit a repeated source-group event while the same user and source are being processed.
+     */
     public function test_source_event_reentry_lock_short_circuits_duplicate_processing(): void {
         $course = $this->getDataGenerator()->create_course();
         $student = $this->getDataGenerator()->create_user();
@@ -155,7 +179,15 @@ class rule_manager_test extends \advanced_testcase {
         }
     }
 
-    /** Build a group rule with defaults suitable for storage. */
+    /**
+     * Build a serialized rule record for the group membership tests.
+     *
+     * @param int $sourcegroupid Source group, or zero for all participants.
+     * @param int $targetgroupid Group populated by the rule.
+     * @param int $itemid Grade item evaluated by the rule.
+     * @param string $status Grade condition used to select students.
+     * @return array Stored rule data with the defaults used by the manager.
+     */
     private function rule(int $sourcegroupid, int $targetgroupid, int $itemid = 1, string $status = 'graded'): array {
         return [
             'groupid' => $targetgroupid,
@@ -166,13 +198,20 @@ class rule_manager_test extends \advanced_testcase {
         ];
     }
 
-    /** Create an item with a gradepass and a final grade for a student. */
+    /**
+     * Create a manual grade item with a pass threshold and one student's final grade.
+     *
+     * @param int $courseid Course containing the test grade item.
+     * @param int $userid Student receiving the grade.
+     * @param float $finalgrade Final grade value to save.
+     * @return \grade_item Updated grade item.
+     */
     private function create_grade_item(int $courseid, int $userid, float $finalgrade): \grade_item {
         $record = $this->getDataGenerator()->create_grade_item([
             'courseid' => $courseid,
             'itemtype' => 'manual',
             'itemname' => 'Rule test grade',
-            'gradetype' => GRADE_TYPE_VALUE,
+            'gradetype' => \GRADE_TYPE_VALUE,
             'grademin' => 0,
             'grademax' => 100,
         ]);
@@ -183,7 +222,15 @@ class rule_manager_test extends \advanced_testcase {
         return $item;
     }
 
-    /** Create a group membership event object for directly exercising its observer. */
+    /**
+     * Build a core group-membership event to invoke an observer without dispatching it globally.
+     *
+     * @param string $classname Core event class name.
+     * @param int $courseid Course that owns the affected group.
+     * @param int $groupid Group whose membership changed.
+     * @param int $userid Student whose membership changed.
+     * @return \core\event\base Group membership event instance.
+     */
     private function group_event(string $classname, int $courseid, int $groupid, int $userid) {
         return $classname::create([
             'context' => \context_course::instance($courseid),
@@ -193,7 +240,9 @@ class rule_manager_test extends \advanced_testcase {
         ]);
     }
 
-    /** Clear request-local rule caches between tests. */
+    /**
+     * Reset static rule indexes and re-entry locks so test cases remain isolated.
+     */
     private function reset_rule_manager_caches(): void {
         foreach (['rulecache', 'itemrulecache', 'sourceeventlocks'] as $propertyname) {
             $property = new \ReflectionProperty(rule_manager::class, $propertyname);

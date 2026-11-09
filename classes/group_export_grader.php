@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Private page module utility functions
+ * Grade report adapter used by grade export to group.
  *
- * @package export_grade
+ * @package gradeexport_group
  * @copyright  2023 Juan Pablo de Castro <juanpablo.decastro@uva.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,6 +29,16 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/grade/report/grader/lib.php');
 
+/**
+ * Read course grade-tree data for manual exports and scheduled membership rules.
+ *
+ * This adapter keeps category totals visible and exposes the grade items, grades and users already loaded by Moodle's
+ * grader report so export operations can reuse that data.
+ *
+ * @package    gradeexport_group
+ * @copyright  2023 Juan Pablo de Castro <juanpablo.decastro@uva.es>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class group_export_grader extends \grade_report_grader {
     /**
      * Constructor to override the calculation of grade_tree (avoid removing collapsed categories).
@@ -59,9 +69,19 @@ class group_export_grader extends \grade_report_grader {
     /**
      * Gets the gradetree object.
      */
+    /**
+     * Return the expanded grade tree used to present selectable items.
+     *
+     * @return \grade_tree Grade tree for this course.
+     */
     public function get_gradetree() {
         return $this->gtree;
     }
+    /**
+     * Build the form labels for eligible course and category grade items.
+     *
+     * @return array Grade-item IDs mapped to display names.
+     */
     public function get_item_names() {
         $items = [];
         // Get grade category names.
@@ -77,6 +97,11 @@ class group_export_grader extends \grade_report_grader {
         }
         return $items;
     }
+    /**
+     * Return category names for displaying category-total grade items.
+     *
+     * @return array Category IDs mapped to names.
+     */
     public function get_category_names() {
         $categories = [];
         array_walk_recursive($this->gtree->top_element, function($item, $key) use (&$categories) {
@@ -86,6 +111,11 @@ class group_export_grader extends \grade_report_grader {
         });
         return $categories;
     }
+    /**
+     * Return grade items that have an active grade type and can be used as rule criteria.
+     *
+     * @return array Grade items indexed by ID.
+     */
     public function get_gradeitems() {
         $items = $this->gtree->get_items();
         $allgradeitems = array_filter($items, function ($item) {
@@ -93,15 +123,36 @@ class group_export_grader extends \grade_report_grader {
         });
         return $allgradeitems;
     }
+    /**
+     * Retrieve a grade item from the report's already-loaded grade tree.
+     *
+     * @param int $itemid Grade item ID.
+     * @return \grade_item|null Grade item, when present in this report.
+     */
     public function get_gradeitem($itemid) {
         return $this->gtree->get_item($itemid);
     }
+    /**
+     * Return the report's loaded grade rows for manual group exports.
+     *
+     * @return array Grades indexed by user and grade item.
+     */
     public function get_grades() {
         return $this->grades;
     }
+    /**
+     * Return the users loaded by the grader report.
+     *
+     * @return array Users included in the current course grade report.
+     */
     public function get_users() {
         return $this->users;
     }
+    /**
+     * Load all report rows so manual exports can process the full course in one operation.
+     *
+     * @return int Maximum number of students requested per report page.
+     */
     public function get_students_per_page(): int {
         return PHP_INT_MAX;
     }

@@ -14,17 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Present grade export controls and manage automatic grade-to-group rules for a course.
+ *
+ * @package    gradeexport_group
+ * @copyright  2024 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 use gradeexport_group\exportgroup_form;
 use gradeexport_group\group_export_grader;
 
 require_once('../../../config.php');
 require_once($CFG->dirroot.'/grade/export/lib.php');
-// Patch for classloader missing exportgroup_form and group_export_grader classes (at UVa servers).
+// Include classes explicitly for Moodle installations where plugin class auto-loading is incomplete.
 require_once('classes/exportgroup_form.php');
 require_once('classes/group_export_grader.php');
 require_once('classes/rule_manager.php');
 require_once('classes/customfield/rules_handler.php');
-// End of patch.
 
 $id = required_param('id', PARAM_INT); // Course id.
 $editrule = optional_param('editrule', '', PARAM_RAW_TRIMMED);
@@ -75,19 +81,6 @@ if ($editrule !== '') {
 $formoptions = (object)['course' => $course, 'context' => $context, 'id' => $course->id,
     'editrule' => $editrule, 'rule' => $editrule !== '' ? $rules[$editrule] : null];
 
-// Don't use group modes. User can access all groups and users.
-
-// $groupmode    = groups_get_course_groupmode($course);   // Groups are being used.
-// $currentgroup = groups_get_course_group($course, true);
-// if (($groupmode == SEPARATEGROUPS) &&
-// (!$currentgroup) &&
-// (!has_capability('moodle/site:accessallgroups', $context))) {
-    
-//     echo $OUTPUT->heading(get_string("notingroup"));
-//     echo $OUTPUT->footer();
-//     die;
-// }
-// groups_print_course_menu($course, 'index.php?id='.$id);
 
 $mform = new exportgroup_form($actionurl, $formoptions);
 
@@ -111,7 +104,7 @@ if ($mform->is_cancelled()) {
     $status = $data->status;
     // Scheduled rules maintain memberships incrementally and must never clear the group.
     $cleangroup = empty($data->autoupdate) && !empty($data->cleangroup);
-  
+
     $groupid = groups_get_group_by_name($course->id, $groupname);
     if (!$groupid) {
         // Create a new group.
