@@ -1,0 +1,91 @@
+name: Publish Moodle plugin release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (for example, v1.0.6)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release-notes:
+    runs-on: ubuntu-latest
+    outputs:
+      content: ${{ steps.notes.outputs.content }}
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+
+      - name: Validate release notes
+        id: notes
+        run: |
+          python3 - <<'PY'
+          import os
+          import uuid
+          from pathlib import Path
+
+          path = Path('RELEASE.md')
+          if not path.is_file():
+              raise SystemExit('RELEASE.md is required to publish on the Moodle Plugins directory')
+          notes = path.read_text(encoding='utf-8').strip()
+          if not notes:
+              raise SystemExit('RELEASE.md is empty')
+          if len(notes) > 10000:
+              raise SystemExit('RELEASE.md exceeds the 10000 character Moodle Plugins directory limit')
+          delimiter = f'RELEASE_NOTES_{uuid.uuid4().hex}'
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'content<<{delimiter}\n{notes}\n{delimiter}\n')
+          PY
+
+  publish-to-moodle:
+    needs: release-notes
+    uses: moodlehq/moodle-plugin-release/.github/workflows/moodle-release.yml@main
+    with:
+      tag: ${{ inputs.tag || github.ref_name }}
+      release_notes: ${{ needs.release-notes.outputs.content }}
+    secrets:
+      MOODLE_MARKETPLACE_TOKEN: ${{ secrets.MOODLE_MARKETPLACE_TOKEN }}
+
+  create-github-release:
+    name: Create GitHub Release and clean plugin ZIP
+    needs: release-notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+
+      - name: Build plugin ZIP
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: git archive --format=zip --output="gradeexport_group-${RELEASE_TAG}.zip" "$RELEASE_TAG"
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          archive="gradeexport_group-${RELEASE_TAG}.zip"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --title "Grade export to group ${RELEASE_TAG}" --notes-file RELEASE.md
+            gh release upload "$RELEASE_TAG" "$archive" --clobber
+          else
+            gh release create "$RELEASE_TAG" "$archive" \
+              --title "Grade export to group ${RELEASE_TAG}" \
+              --notes-file RELEASE.md \
+              --verify-tag
+          fi

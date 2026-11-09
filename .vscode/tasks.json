@@ -1,0 +1,44 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sincronizar este proyecto ahora",
+      "type": "process",
+      "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
+      "args": [
+        "sync"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Activar sincronización y ver actividad en consola",
+      "type": "process",
+      "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
+      "args": [
+        "watch"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Detener sincronización Watchman",
+      "type": "process",
+      "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
+      "args": [
+        "stop"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

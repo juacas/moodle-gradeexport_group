@@ -1,0 +1,7 @@
+# Keep website and development files out of GitHub/Moodle release source archives.
+/website export-ignore
+/.github export-ignore
+/.vscode export-ignore
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore

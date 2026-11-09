@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Crea grupos de Moodle a partir de criterios del libro de calificaciones y mantenlos actualizados automáticamente.">
+  <meta name="theme-color" content="#081426">
+  <meta property="og:title" content="Grade export to group · Moodle">
+  <meta property="og:description" content="Convierte criterios de calificación en grupos útiles para disponibilidad y comunicación con estudiantes.">
+  <meta property="og:type" content="website">
+  <title>Grade export to group · Grupos desde calificaciones en Moodle</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="#inicio" aria-label="Grade export to group, inicio">
+      <img src="../assets/icon.svg" alt="" width="34" height="34">
+      <span>Grade export to group</span>
+    </a>
+    <nav class="nav" aria-label="Navegación principal">
+      <a href="#usos">Casos de uso</a>
+      <a href="#funciona">Cómo funciona</a>
+      <a href="https://marketplace.moodle.com/plugins/gradeexport_group">Moodle Plugins</a>
+      <a class="github" href="https://github.com/juacas/moodle-gradeexport_group">GitHub ↗</a>
+      <a href="../">EN</a>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <section class="hero shell">
+      <div>
+        <p class="eyebrow"><span class="dot"></span> Código abierto · GPLv3+</p>
+        <h1>Del libro de calificaciones a <em>grupos que actúan.</em></h1>
+        <p class="lede">Crea grupos de Moodle con criterios precisos de calificación y úsalos para adaptar el curso a lo que cada estudiante necesita.</p>
+        <div class="actions">
+          <a class="button primary" href="https://marketplace.moodle.com/plugins/gradeexport_group">Instalar desde Moodle Plugins <span>↗</span></a>
+          <a class="button quiet" href="#usos">Ver casos de uso <span>↓</span></a>
+        </div>
+        <div class="compat"><span>Moodle 4.1+</span><span>Reglas automáticas</span><span>Grupos estándar de Moodle</span></div>
+      </div>
+
+      <div class="preview-wrap" role="img" aria-label="Vista ilustrativa de resultados y grupos creados según las calificaciones">
+        <div class="glow glow-blue"></div><div class="glow glow-teal"></div>
+        <div class="preview">
+          <div class="windowbar"><i></i><i></i><i></i><strong>Calificaciones del curso</strong><span>•••</span></div>
+          <div class="grade-table">
+            <div class="grade-head"><span>Estudiante</span><span>Prueba 2</span><span>Grupo</span></div>
+            <div class="grade-row"><strong>Alex Rivera</strong><span class="score">42 / 100</span><span class="pill pill-fail">Pendiente de refuerzo</span></div>
+            <div class="grade-row"><strong>Sam Lee</strong><span class="score">78 / 100</span><span class="pill pill-pass">En curso</span></div>
+            <div class="grade-row"><strong>Morgan Díaz</strong><span class="score">35 / 100</span><span class="pill pill-fail">Pendiente de refuerzo</span></div>
+            <div class="target-chip"><b>✓</b> Refuerzo · Pruebas parciales</div>
+            <div class="target-chip"><b>↻</b> Se actualiza al cambiar la nota</div>
+          </div>
+          <div class="float-note"><strong>Grupos con propósito</strong><small>desde criterios que ya usas</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof shell" aria-label="Ventajas principales">
+      <div><strong>Criterios del gradebook</strong><span>Notas, aprobados y calificaciones pendientes</span></div>
+      <div><strong>Reglas reutilizables</strong><span>Actualiza grupos cuando cambian las notas</span></div>
+      <div><strong>Integrado en Moodle</strong><span>Usa grupos para disponibilidad y comunicación</span></div>
+    </section>
+
+    <section class="section shell" id="usos">
+      <div class="section-heading">
+        <p class="eyebrow">De una condición a una acción concreta</p>
+        <h2>Los grupos adecuados hacen que <em>el siguiente paso sea más claro.</em></h2>
+      </div>
+      <div class="cases">
+        <article class="case case-blue">
+          <span class="case-icon" aria-hidden="true">＋</span>
+          <h3>Genera grupos manualmente</h3>
+          <p>Elige una actividad o categoría del libro de calificaciones, define el criterio y crea el grupo con los estudiantes que lo cumplen.</p>
+          <span class="number">01</span>
+        </article>
+        <article class="case case-teal">
+          <span class="case-icon" aria-hidden="true">↻</span>
+          <h3>Da seguimiento a pruebas parciales</h3>
+          <p>Mantén al día un grupo con quienes no han superado una prueba. Las reglas automáticas ajustan sus integrantes cuando cambia una nota.</p>
+          <span class="number">02</span>
+        </article>
+        <article class="case case-amber">
+          <span class="case-icon" aria-hidden="true">⌑</span>
+          <h3>Adapta la disponibilidad</h3>
+          <p>Usa el grupo como condición de disponibilidad para abrir actividades de refuerzo o mostrar recursos según el progreso.</p>
+          <span class="number">03</span>
+        </article>
+        <article class="case case-violet">
+          <span class="case-icon" aria-hidden="true">✉</span>
+          <h3>Comunica con precisión</h3>
+          <p>Dirige avisos y acompañamiento a los grupos que necesitan una indicación concreta, sin buscar manualmente estudiante por estudiante.</p>
+          <span class="number">04</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow" id="funciona">
+      <div class="workflow-inner shell section">
+        <div>
+          <p class="eyebrow">Sencillo de configurar</p>
+          <h2>Define el criterio.<br><em>Moodle mantiene el grupo.</em></h2>
+          <p class="workflow-copy">Crea una regla desde la exportación de calificaciones a grupos. Selecciona el grupo de origen, el ítem, la condición y el destino. Puedes combinar reglas para alimentar un mismo grupo.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><span>01</span><div><h3>Selecciona las calificaciones</h3><p>Usa el total del curso, una categoría o una actividad evaluable.</p></div></div>
+          <div class="step"><span>02</span><div><h3>Expresa quién cumple el criterio</h3><p>Incluye suspensos, aprobados, notas pendientes o estudiantes ya calificados.</p></div></div>
+          <div class="step"><span>03</span><div><h3>Conecta el grupo con el curso</h3><p>Aplica disponibilidad, organiza una intervención o envía una comunicación dirigida.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell">
+      <div class="cta">
+        <div>
+          <h2>Convierte tus criterios en grupos útiles.</h2>
+          <p>Grade export to group es un plugin de código abierto para crear y mantener grupos desde el gradebook de Moodle.</p>
+        </div>
+        <a class="button button-light" href="https://marketplace.moodle.com/plugins/gradeexport_group">Obtener el plugin <span>↗</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-content">
+      <div class="footer-intro">
+        <a class="brand" href="#inicio"><img src="../assets/icon.svg" alt="" width="38" height="38"><span>Grade export to group</span></a>
+        <p>Una herramienta abierta para crear grupos desde criterios del libro de calificaciones de Moodle.</p>
+      </div>
+      <nav class="footer-column" aria-label="Recursos">
+        <h2>Recursos</h2>
+        <a href="https://github.com/juacas/moodle-gradeexport_group">Código en GitHub</a>
+        <a href="https://github.com/juacas/moodle-gradeexport_group/issues">Incidencias</a>
+        <a href="https://marketplace.moodle.com/plugins/gradeexport_group">Moodle Plugins</a>
+      </nav>
+      <div class="footer-column">
+        <h2>Atribución</h2>
+        <span>Desarrollado por Juan Pablo de Castro</span>
+        <span>Licencia GNU GPL v3 o posterior</span>
+        <a href="../">English version</a>
+      </div>
+    </div>
+    <div class="shell partner-row" aria-label="Instituciones">
+      <span class="partner-logo"><img src="../assets/logo-cuatricromia-negativo.png" alt="Universidad de Valladolid" loading="lazy"></span>
+      <span class="partner-logo"><img src="../assets/eduvalab-logo.png" alt="EdUVALab" loading="lazy"></span>
+    </div>
+    <div class="shell footer-bottom">
+      <span>Grade export to group · Plugin de Moodle</span>
+      <span>© Juan Pablo de Castro · GPLv3+</span>
+    </div>
+  </footer>
+</body>
+</html>
