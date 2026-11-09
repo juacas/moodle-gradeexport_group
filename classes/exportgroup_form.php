@@ -39,14 +39,14 @@ class exportgroup_form extends \moodleform {
         // Hidden course id.
         $mform->addElement('hidden', 'id', $data->course->id);
         $mform->setType('id', PARAM_INT);
+        $mform->addElement('hidden', 'editrule', $data->editrule ?? '');
+        $mform->setType('editrule', PARAM_RAW_TRIMMED);
         // Select group.
-        $groups = groups_get_all_groups($data->course->id);
+        $groups = groups_get_all_groups($data->course->id, 0, 0, 'g.*', true);
         // Add all groups option.
         $groupoptions = ['0' => get_string('allparticipants')];
         foreach ($groups as $group) {
-            // Get member count.
-            $members = groups_get_members($group->id);
-            $groupoptions[$group->id] = $group->name. " ( " . count($members) . " )";
+            $groupoptions[$group->id] = $group->name. " ( " . count($group->members) . " )";
         }
         $mform->addElement('select', 'group', get_string('group'), $groupoptions);
         $mform->addRule('group', get_string('required'), 'required');
@@ -94,6 +94,23 @@ class exportgroup_form extends \moodleform {
         $mform->addElement('checkbox', 'cleangroup', get_string('cleangroup', 'gradeexport_group'));
         $mform->setDefault('cleangroup', 0);
         $mform->addHelpButton('cleangroup', 'cleangroup', 'gradeexport_group');
+        $mform->addElement('advcheckbox', 'autoupdate', get_string('autoupdate', 'gradeexport_group'));
+        $mform->addHelpButton('autoupdate', 'autoupdate', 'gradeexport_group');
+        $mform->setDefault('autoupdate', 0);
+        $mform->disabledIf('cleangroup', 'autoupdate', 'checked');
+        if (!empty($data->rule)) {
+            $rule = $data->rule;
+            $targetgroup = groups_get_group((int)$rule['groupid']);
+            $mform->setDefault('group', (int)$rule['sourcegroupid']);
+            $mform->setDefault('item', (int)$rule['itemid']);
+            $mform->setDefault('status', $rule['status']);
+            $mform->setDefault('groupname', $targetgroup ? $targetgroup->name : ($rule['groupname'] ?? ''));
+            $mform->setDefault('groupdescription', $targetgroup ? $targetgroup->description : '');
+            // Scheduled rules manage memberships incrementally; they never empty the target group.
+            $mform->setDefault('cleangroup', 0);
+            $mform->setDefault('autoupdate', 1);
+            $mform->setDefault('editrule', $data->editrule);
+        }
         $this->add_action_buttons();
     }
 }
