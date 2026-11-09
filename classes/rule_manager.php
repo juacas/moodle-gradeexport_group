@@ -57,8 +57,10 @@ class rule_manager {
             $controller = $data[(int)$field->get('id')] ?? null;
             if ($controller) {
                 $document = json_decode((string)$controller->get('value'), true);
-                if (is_array($document) && ($document['version'] ?? null) === self::SCHEMA_VERSION &&
-                        is_array($document['rules'] ?? null)) {
+                if (
+                        is_array($document) && ($document['version'] ?? null) === self::SCHEMA_VERSION &&
+                        is_array($document['rules'] ?? null)
+                ) {
                     return self::$rulecache[$courseid] = $document['rules'];
                 }
             }
@@ -295,15 +297,16 @@ class rule_manager {
      * @return int Number of students added to the target group.
      */
     public static function apply_rule_operation(
-            int $courseid,
-            array $rule,
-            array $grades,
-            array $users,
-            ?array $oldrule,
-            array $existingrules,
-            ?string $oldrulekey,
-            bool $cleangroup,
-            bool $autoupdate): int {
+        int $courseid,
+        array $rule,
+        array $grades,
+        array $users,
+        ?array $oldrule,
+        array $existingrules,
+        ?string $oldrulekey,
+        bool $cleangroup,
+        bool $autoupdate
+    ): int {
         self::load_group_library();
         $remainingrules = $existingrules;
         if ($oldrulekey !== null) {
@@ -456,7 +459,10 @@ class rule_manager {
      * @param int $userid User whose membership changed.
      */
     public static function remove_user_from_source_group_targets(
-            int $courseid, int $sourcegroupid, int $userid): void {
+        int $courseid,
+        int $sourcegroupid,
+        int $userid
+    ): void {
         if ($courseid <= 0 || $sourcegroupid <= 0 || $userid <= 0) {
             return;
         }
@@ -480,7 +486,10 @@ class rule_manager {
      * @param int $userid User whose destination memberships are reconciled.
      */
     private static function remove_user_from_source_group_targets_locked(
-            int $courseid, int $sourcegroupid, int $userid): void {
+        int $courseid,
+        int $sourcegroupid,
+        int $userid
+    ): void {
         self::load_group_library();
         $rules = self::get_rules($courseid);
         $targetgroupids = [];
@@ -594,7 +603,7 @@ class rule_manager {
 
         $coursegroups = groups_get_all_groups($courseid, $userid);
         $membergroupids = array_fill_keys(array_map('intval', array_keys($coursegroups)), true);
-        $applicablerules = array_filter($rules, static function($rule) use ($membergroupids) {
+        $applicablerules = array_filter($rules, static function ($rule) use ($membergroupids) {
             $sourcegroupid = (int)$rule['sourcegroupid'];
             return !$sourcegroupid || isset($membergroupids[$sourcegroupid]);
         });
@@ -659,7 +668,7 @@ class rule_manager {
         if (!array_key_exists($itemid, self::$itemrulecache[$courseid] ?? [])) {
             self::$itemrulecache[$courseid][$itemid] = array_filter(
                 self::get_rules($courseid),
-                static function($rule) use ($itemid) {
+                static function ($rule) use ($itemid) {
                     return (int)$rule['itemid'] === $itemid;
                 }
             );

@@ -25,7 +25,7 @@ use gradeexport_group\exportgroup_form;
 use gradeexport_group\group_export_grader;
 
 require_once('../../../config.php');
-require_once($CFG->dirroot.'/grade/export/lib.php');
+require_once($CFG->dirroot . '/grade/export/lib.php');
 // Include classes explicitly for Moodle installations where plugin class auto-loading is incomplete.
 require_once('classes/exportgroup_form.php');
 require_once('classes/group_export_grader.php');
@@ -65,9 +65,19 @@ if ($editrule !== '' && !array_key_exists($editrule, $rules)) {
 }
 
 $actionbar = new \core_grades\output\export_action_bar($context, null, 'group');
-print_grade_page_head($COURSE->id, 'export', 'group',
+print_grade_page_head(
+    $COURSE->id,
+    'export',
+    'group',
     get_string('exportto', 'grades') . ' ' . get_string('pluginname', 'gradeexport_group'),
-    false, false, true, null, null, null, $actionbar);
+    false,
+    false,
+    true,
+    null,
+    null,
+    null,
+    $actionbar
+);
 export_verify_grades($COURSE->id);
 
 if (!empty($CFG->gradepublishing)) {
@@ -165,12 +175,13 @@ if ($mform->is_cancelled()) {
         !empty($data->autoupdate)
     );
     // Print a message with the number of students added to the group.
-    echo $OUTPUT->notification(get_string('addedtogroup', 'gradeexport_group',
-        (object) [
+    echo $OUTPUT->notification(
+        get_string('addedtogroup', 'gradeexport_group', (object) [
             'groupname' => $groupname,
             'added' => $added,
             'url' => (new moodle_url('/group/members.php', ['group' => $groupid, 'id' => $course->id]))->out(),
-            ]));
+        ])
+    );
 }
 
 $rules = \gradeexport_group\rule_manager::get_rules($course->id);
@@ -190,7 +201,7 @@ if ($rules) {
     $grader = new group_export_grader($course->id, '0', $context);
     $itemnames = $grader->get_item_names();
     $groupcounts = [];
-    $getmembercount = static function($group) use (&$groupcounts, $DB): int {
+    $getmembercount = static function ($group) use (&$groupcounts, $DB): int {
         $groupid = (int)$group->id;
         if (!array_key_exists($groupid, $groupcounts)) {
             $groupcounts[$groupid] = $DB->count_records('groups_members', ['groupid' => $groupid]);
@@ -242,4 +253,3 @@ if ($rules) {
 $mform->display();
 
 echo $OUTPUT->footer();
-
