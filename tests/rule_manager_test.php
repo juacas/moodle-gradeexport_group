@@ -26,7 +26,10 @@ namespace gradeexport_group;
  */
 final class rule_manager_test extends \advanced_testcase {
     protected function setUp(): void {
+        global $CFG;
+
         parent::setUp();
+        require_once($CFG->libdir . '/grade/constants.php');
         $this->resetAfterTest();
         $this->reset_rule_manager_caches();
         $this->setAdminUser();
