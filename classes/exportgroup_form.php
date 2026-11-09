@@ -23,9 +23,19 @@
  */
 namespace gradeexport_group;
 
-defined('MOODLE_INTERNAL') || die;
-
+/**
+ * Configure a one-time grade export or an automatic grade-to-group rule.
+ *
+ * The form selects a source group, grade item and status criterion, then identifies or creates the destination group.
+ *
+ * @package    gradeexport_group
+ * @copyright  2023 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class exportgroup_form extends \moodleform {
+    /**
+     * Define source, grade condition and destination fields for the group export operation.
+     */
     public function definition() {
         global $CFG, $DB;
 
@@ -46,7 +56,7 @@ class exportgroup_form extends \moodleform {
         // Add all groups option.
         $groupoptions = ['0' => get_string('allparticipants')];
         foreach ($groups as $group) {
-            $groupoptions[$group->id] = $group->name. " ( " . count($group->members) . " )";
+            $groupoptions[$group->id] = $group->name . " ( " . count($group->members) . " )";
         }
         $mform->addElement('select', 'group', get_string('group'), $groupoptions);
         $mform->addRule('group', get_string('required'), 'required');
@@ -85,10 +95,13 @@ class exportgroup_form extends \moodleform {
         // Description of the group.
         $mform->addElement('textarea', 'groupdescription', get_string('groupdescription', 'gradeexport_group'));
         $mform->setType('groupdescription', PARAM_TEXT);
-        $mform->setDefault('groupdescription', get_string('gradesgroupdescription', 'gradeexport_group',
+        $mform->setDefault('groupdescription', get_string(
+            'gradesgroupdescription',
+            'gradeexport_group',
             (object)['itemname' => $items[array_key_last($items)],
             'status' => get_string('failed', 'gradeexport_group'),
-            ]));
+            ]
+        ));
 
         // Checkbox for cleaning the group with help.
         $mform->addElement('checkbox', 'cleangroup', get_string('cleangroup', 'gradeexport_group'));

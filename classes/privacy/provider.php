@@ -24,15 +24,23 @@
 
 namespace gradeexport_group\privacy;
 
+/**
+ * Declare that automatic grade-to-group rules store course configuration, not personal data.
+ *
+ * Group membership remains part of Moodle's core group API and is not stored separately by this plugin.
+ *
+ * @package    gradeexport_group\privacy
+ * @copyright  2024 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class provider implements \core_privacy\local\metadata\null_provider {
-
     /**
      * Get the language string identifier with the component's language
      * file to explain why this plugin stores no data.
      *
      * @return  string
      */
-    public static function get_reason() : string {
+    public static function get_reason(): string {
         return 'privacy:metadata';
     }
 }

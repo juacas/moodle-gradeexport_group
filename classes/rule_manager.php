@@ -5,14 +5,29 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace gradeexport_group;
 
 use gradeexport_group\customfield\rules_handler;
 
-defined('MOODLE_INTERNAL') || die();
-
-/** Store and apply automatic group rules for a course. */
+/**
+ * Persist, validate and incrementally apply course rules that export grades to groups.
+ *
+ * The rule set is stored as versioned JSON in a private course custom field; request-local indexes keep event handling
+ * limited to rules for the changed grade item or source group.
+ *
+ * @package    gradeexport_group
+ * @copyright  2024 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class rule_manager {
     /** Version of the stored JSON document. */
     private const SCHEMA_VERSION = 1;
@@ -25,7 +40,12 @@ class rule_manager {
     /** @var array Re-entry locks for group membership event propagation. */
     private static array $sourceeventlocks = [];
 
-    /** Get all rules configured for a course. */
+    /**
+     * Load a course's automatic export rules from its private custom field, falling back to the legacy format option.
+     *
+     * @param int $courseid Course whose rules are requested.
+     * @return array Rules keyed by their target, source, grade item and condition.
+     */
     public static function get_rules(int $courseid): array {
         if (array_key_exists($courseid, self::$rulecache)) {
             return self::$rulecache[$courseid];
@@ -37,8 +57,10 @@ class rule_manager {
             $controller = $data[(int)$field->get('id')] ?? null;
             if ($controller) {
                 $document = json_decode((string)$controller->get('value'), true);
-                if (is_array($document) && ($document['version'] ?? null) === self::SCHEMA_VERSION &&
-                        is_array($document['rules'] ?? null)) {
+                if (
+                        is_array($document) && ($document['version'] ?? null) === self::SCHEMA_VERSION &&
+                        is_array($document['rules'] ?? null)
+                ) {
                     return self::$rulecache[$courseid] = $document['rules'];
                 }
             }
@@ -47,7 +69,11 @@ class rule_manager {
         return self::$rulecache[$courseid] = self::read_legacy_rules($courseid);
     }
 
-    /** Ensure the private versioned JSON field exists. */
+    /**
+     * Retrieve or create the private custom field used to store serialized rule sets.
+     *
+     * @return \core_customfield\field_controller Rule storage field controller.
+     */
     private static function ensure_field(): \core_customfield\field_controller {
         $handler = rules_handler::create();
         $field = self::find_field($handler);
@@ -75,7 +101,12 @@ class rule_manager {
         return $field;
     }
 
-    /** Find the plugin's custom-field definition without creating it. */
+    /**
+     * Find the rule-storage field by its stable short name without creating plugin configuration.
+     *
+     * @param rules_handler $handler Course custom-field handler.
+     * @return \core_customfield\field_controller|null Existing field, or null before first use.
+     */
     private static function find_field(rules_handler $handler): ?\core_customfield\field_controller {
         foreach ($handler->get_fields() as $field) {
             if ($field->get('shortname') === self::FIELD_SHORTNAME) {
@@ -85,7 +116,12 @@ class rule_manager {
         return null;
     }
 
-    /** Read configuration from the legacy format-option location. */
+    /**
+     * Read rules saved by the earlier implementation in course format options.
+     *
+     * @param int $courseid Course whose legacy rule data is being migrated.
+     * @return array Decoded legacy rules, or an empty list when no valid data exists.
+     */
     private static function read_legacy_rules(int $courseid): array {
         global $DB;
         $course = get_course($courseid);
@@ -102,12 +138,23 @@ class rule_manager {
         return is_array($rules) ? $rules : [];
     }
 
-    /** Add or replace a rule, keyed by its target/source/item/condition to prevent duplicates. */
+    /**
+     * Save one rule, replacing any rule with the same target, source, grade item and condition key.
+     *
+     * @param int $courseid Course receiving the rule.
+     * @param array $rule Rule definition to persist.
+     */
     public static function save_rule(int $courseid, array $rule): void {
         self::save_rules($courseid, $rule, null);
     }
 
-    /** Save a rule, optionally replacing its previous key. */
+    /**
+     * Update a course's rule set and reject a new source-to-target edge that introduces a cycle.
+     *
+     * @param int $courseid Course receiving the updated rule set.
+     * @param array $rule Rule definition to save.
+     * @param string|null $replacekey Existing rule key to remove when editing a rule.
+     */
     public static function save_rules(int $courseid, array $rule, ?string $replacekey): void {
         $rules = self::get_rules($courseid);
         if ($replacekey !== null) {
@@ -122,7 +169,13 @@ class rule_manager {
         unset(self::$itemrulecache[$courseid]);
     }
 
-    /** Reject a newly introduced source-to-target edge if it would close a cycle. */
+    /**
+     * Reject only a new edge that makes a path from the target lead back to its source.
+     *
+     * @param array $rules Existing course rules after removing any edited rule.
+     * @param int $sourcegroupid Source group; zero represents all course participants.
+     * @param int $targetgroupid Destination group receiving eligible students.
+     */
     private static function validate_no_new_cycle(array $rules, int $sourcegroupid, int $targetgroupid): void {
         // Source 0 means all participants and is not a group-to-group edge.
         if ($sourcegroupid <= 0) {
@@ -159,7 +212,13 @@ class rule_manager {
         }
     }
 
-    /** Delete one rule by its stored key. */
+    /**
+     * Delete a rule and invalidate the request-local rule indexes for its course.
+     *
+     * @param int $courseid Course containing the rule.
+     * @param string $key Stored rule key.
+     * @return bool Whether a rule with that key existed and was removed.
+     */
     public static function delete_rule(int $courseid, string $key): bool {
         $rules = self::get_rules($courseid);
         if (!array_key_exists($key, $rules)) {
@@ -172,7 +231,12 @@ class rule_manager {
         return true;
     }
 
-    /** Persist the complete course rule set. */
+    /**
+     * Write the versioned course rule document and omit the one-time export clean-group option.
+     *
+     * @param int $courseid Course whose custom-field value is updated.
+     * @param array $rules Complete rule set to serialize.
+     */
     private static function write_rules(int $courseid, array $rules): void {
         foreach ($rules as &$rule) {
             // This option applies only to one-time exports, never to scheduled rules.
@@ -197,7 +261,14 @@ class rule_manager {
         $controller->save();
     }
 
-    /** Determine whether a grade meets a rule's condition. */
+    /**
+     * Evaluate the supported pass, fail, missing-grade and graded conditions for one final grade.
+     *
+     * @param mixed $finalgrade Final grade value, or null when the item has no grade.
+     * @param float $gradepass Pass threshold configured on the grade item.
+     * @param string $status Rule condition identifier.
+     * @return bool Whether the final grade satisfies the condition.
+     */
     public static function matches($finalgrade, float $gradepass, string $status): bool {
         $nograde = $finalgrade === null;
         $approved = !$nograde && $finalgrade >= $gradepass;
@@ -216,17 +287,26 @@ class rule_manager {
         return false;
     }
 
-    /** Apply an add/edit operation using the grade report data already loaded in memory. */
+    /**
+     * Apply one manual export or saved-rule edit using the grade report data already loaded for the page.
+     *
+     * @param int $courseid Course containing the source and target groups.
+     * @param array $rule Rule fields used for this operation.
+     * @param array $grades Grade report data indexed by item and user.
+     * @param bool $cleangroup Whether a one-time export first empties its target group.
+     * @return int Number of students added to the target group.
+     */
     public static function apply_rule_operation(
-            int $courseid,
-            array $rule,
-            array $grades,
-            array $users,
-            ?array $oldrule,
-            array $existingrules,
-            ?string $oldrulekey,
-            bool $cleangroup,
-            bool $autoupdate): int {
+        int $courseid,
+        array $rule,
+        array $grades,
+        array $users,
+        ?array $oldrule,
+        array $existingrules,
+        ?string $oldrulekey,
+        bool $cleangroup,
+        bool $autoupdate
+    ): int {
         self::load_group_library();
         $remainingrules = $existingrules;
         if ($oldrulekey !== null) {
@@ -304,7 +384,14 @@ class rule_manager {
         return $added;
     }
 
-    /** Get eligible IDs for one rule from already-loaded grade data. */
+    /**
+     * Select eligible user IDs from in-memory grades and the optional source-group membership.
+     *
+     * @param int $courseid Course whose participants are considered.
+     * @param array $rule Rule condition and source group.
+     * @param array $grades Loaded grade data for the relevant grade item.
+     * @return array User IDs that meet the rule.
+     */
     private static function eligible_user_ids(int $courseid, array $rule, array $grades): array {
         $itemid = (int)$rule['itemid'];
         $gradeitem = \grade_item::fetch(['id' => $itemid, 'courseid' => $courseid]);
@@ -332,7 +419,13 @@ class rule_manager {
         return $eligible;
     }
 
-    /** Reapply rules sourced from a group after a member is added to it. */
+    /**
+     * Propagate a group-member addition through rules that use that group as their source.
+     *
+     * @param int $courseid Course owning the source group.
+     * @param int $sourcegroupid Group the user joined.
+     * @param int $userid User whose membership changed.
+     */
     public static function update_source_group_member(int $courseid, int $sourcegroupid, int $userid): void {
         if ($courseid <= 0 || $sourcegroupid <= 0 || $userid <= 0) {
             return;
@@ -358,9 +451,18 @@ class rule_manager {
         }
     }
 
-    /** Remove a user from all targets of rules sourced by a group they left. */
+    /**
+     * Reconcile destination groups after a user leaves a source group.
+     *
+     * @param int $courseid Course owning the source group.
+     * @param int $sourcegroupid Group the user left.
+     * @param int $userid User whose membership changed.
+     */
     public static function remove_user_from_source_group_targets(
-            int $courseid, int $sourcegroupid, int $userid): void {
+        int $courseid,
+        int $sourcegroupid,
+        int $userid
+    ): void {
         if ($courseid <= 0 || $sourcegroupid <= 0 || $userid <= 0) {
             return;
         }
@@ -376,9 +478,18 @@ class rule_manager {
         }
     }
 
-    /** Reconcile affected targets against every rule that targets each group. */
+    /**
+     * Keep a user in each affected target only when another applicable rule still qualifies them.
+     *
+     * @param int $courseid Course owning the source and destination groups.
+     * @param int $sourcegroupid Source group the user left.
+     * @param int $userid User whose destination memberships are reconciled.
+     */
     private static function remove_user_from_source_group_targets_locked(
-            int $courseid, int $sourcegroupid, int $userid): void {
+        int $courseid,
+        int $sourcegroupid,
+        int $userid
+    ): void {
         self::load_group_library();
         $rules = self::get_rules($courseid);
         $targetgroupids = [];
@@ -428,7 +539,14 @@ class rule_manager {
         }
     }
 
-    /** Update one user's membership for rules matching the changed grade item only. */
+    /**
+     * Reconcile one user's group memberships using only rules for the grade item that changed.
+     *
+     * @param int $courseid Course where the grade changed.
+     * @param int $itemid Grade item whose final grade changed.
+     * @param int $userid User whose grade changed.
+     * @param mixed $finalgrade New final grade, or null when no grade is present.
+     */
     public static function update_user(int $courseid, int $itemid, int $userid, $finalgrade): void {
         self::load_group_library();
         $allrules = self::get_rules($courseid);
@@ -485,7 +603,7 @@ class rule_manager {
 
         $coursegroups = groups_get_all_groups($courseid, $userid);
         $membergroupids = array_fill_keys(array_map('intval', array_keys($coursegroups)), true);
-        $applicablerules = array_filter($rules, static function($rule) use ($membergroupids) {
+        $applicablerules = array_filter($rules, static function ($rule) use ($membergroupids) {
             $sourcegroupid = (int)$rule['sourcegroupid'];
             return !$sourcegroupid || isset($membergroupids[$sourcegroupid]);
         });
@@ -539,12 +657,18 @@ class rule_manager {
         }
     }
 
-    /** Return only the rules for one grade item, cached for this request. */
+    /**
+     * Return and memoize the subset of course rules associated with one grade item.
+     *
+     * @param int $courseid Course whose rules are indexed.
+     * @param int $itemid Grade item used to filter the rules.
+     * @return array Rules that respond to this grade item.
+     */
     private static function get_rules_for_item(int $courseid, int $itemid): array {
         if (!array_key_exists($itemid, self::$itemrulecache[$courseid] ?? [])) {
             self::$itemrulecache[$courseid][$itemid] = array_filter(
                 self::get_rules($courseid),
-                static function($rule) use ($itemid) {
+                static function ($rule) use ($itemid) {
                     return (int)$rule['itemid'] === $itemid;
                 }
             );
@@ -552,7 +676,9 @@ class rule_manager {
         return self::$itemrulecache[$courseid][$itemid];
     }
 
-    /** Load the group membership API, which is not included in every gradebook entry point. */
+    /**
+     * Load Moodle's group API for gradebook entry points that do not include it by default.
+     */
     private static function load_group_library(): void {
         global $CFG;
         require_once($CFG->dirroot . '/group/lib.php');
