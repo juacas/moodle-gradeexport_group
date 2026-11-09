@@ -30,9 +30,10 @@
  * @param context_course $context Course context.
  */
 function gradeexport_group_extend_navigation_course(
-        navigation_node $parentnode,
-        stdClass $course,
-        context_course $context): void {
+    navigation_node $parentnode,
+    stdClass $course,
+    context_course $context
+): void {
     if (!has_all_capabilities(['moodle/grade:export', 'gradeexport/group:view'], $context)) {
         return;
     }

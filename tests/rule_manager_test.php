@@ -22,9 +22,9 @@ namespace gradeexport_group;
  * @package    gradeexport_group
  * @copyright 2026 Juan Pablo de Castro <juanpablo.decastro@uva.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @coversDefaultClass \gradeexport_group\rule_manager
  */
-class rule_manager_test extends \advanced_testcase {
-
+final class rule_manager_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
@@ -34,6 +34,8 @@ class rule_manager_test extends \advanced_testcase {
 
     /**
      * Reject both a self-reference and an indirect path that would close a cycle.
+     *
+     * @covers ::save_rule
      */
     public function test_rejects_new_direct_and_indirect_cycles(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -61,6 +63,9 @@ class rule_manager_test extends \advanced_testcase {
 
     /**
      * Accept acyclic source chains and rules that use all course participants as their source.
+     *
+     * @covers ::save_rule
+     * @covers ::get_rules
      */
     public function test_accepts_acyclic_rules_and_all_participants_source(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -77,6 +82,9 @@ class rule_manager_test extends \advanced_testcase {
 
     /**
      * Preserve legacy cycles and validate only the edge being added to the existing rule set.
+     *
+     * @covers ::save_rule
+     * @covers ::get_rules
      */
     public function test_does_not_scan_or_reject_preexisting_cycles(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -99,6 +107,8 @@ class rule_manager_test extends \advanced_testcase {
 
     /**
      * Keep a shared target membership only when another source rule still qualifies the user.
+     *
+     * @covers ::remove_user_from_source_group_targets
      */
     public function test_source_group_removal_evaluates_all_rules_for_each_target(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -134,6 +144,8 @@ class rule_manager_test extends \advanced_testcase {
 
     /**
      * Propagate a source group addition through successive rules in an acyclic chain.
+     *
+     * @covers \gradeexport_group\observer::group_member_added
      */
     public function test_group_added_rules_propagate_through_acyclic_chain(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -148,8 +160,14 @@ class rule_manager_test extends \advanced_testcase {
 
         groups_add_member($source, $student);
         // Call explicitly as well so the test remains independent of the site observer cache.
-        observer::group_member_added($this->group_event(\core\event\group_member_added::class,
-            $course->id, $source->id, $student->id));
+        observer::group_member_added(
+            $this->group_event(
+                \core\event\group_member_added::class,
+                $course->id,
+                $source->id,
+                $student->id
+            )
+        );
 
         $this->assertTrue(groups_is_member($middle->id, $student->id));
         $this->assertTrue(groups_is_member($target->id, $student->id));
@@ -157,6 +175,8 @@ class rule_manager_test extends \advanced_testcase {
 
     /**
      * Short-circuit a repeated source-group event while the same user and source are being processed.
+     *
+     * @covers ::update_source_group_member
      */
     public function test_source_event_reentry_lock_short_circuits_duplicate_processing(): void {
         $course = $this->getDataGenerator()->create_course();

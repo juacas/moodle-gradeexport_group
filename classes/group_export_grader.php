@@ -43,7 +43,7 @@ class group_export_grader extends \grade_report_grader {
     /**
      * Constructor to override the calculation of grade_tree (avoid removing collapsed categories).
      */
-    public function __construct($courseid, $gpr, $context, $page=null, $sortitemid='lastname') {
+    public function __construct($courseid, $gpr, $context, $page = null, $sortitemid = 'lastname') {
         global $CFG;
         parent::__construct($courseid, $gpr, $context, $page);
 
@@ -104,7 +104,7 @@ class group_export_grader extends \grade_report_grader {
      */
     public function get_category_names() {
         $categories = [];
-        array_walk_recursive($this->gtree->top_element, function($item, $key) use (&$categories) {
+        array_walk_recursive($this->gtree->top_element, function ($item, $key) use (&$categories) {
             if ($item instanceof grade_category) {
                 $categories[$item->id] = $item->get_name();
             }
