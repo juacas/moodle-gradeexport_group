@@ -23,9 +23,19 @@
  */
 namespace gradeexport_group;
 
-defined('MOODLE_INTERNAL') || die;
-
+/**
+ * Configure a one-time grade export or an automatic grade-to-group rule.
+ *
+ * The form selects a source group, grade item and status criterion, then identifies or creates the destination group.
+ *
+ * @package    gradeexport_group
+ * @copyright  2023 Juan Pablo de Castro <juan.pablo.de.castro@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class exportgroup_form extends \moodleform {
+    /**
+     * Define source, grade condition and destination fields for the group export operation.
+     */
     public function definition() {
         global $CFG, $DB;
 

@@ -23,6 +23,26 @@ Create Moodle groups from gradebook criteria, then use those groups to adapt cou
 
 The plugin creates standard Moodle groups, which can be selected in activity availability settings and other Moodle features that use groups.
 
+## How automatic rules work
+
+An automatic rule is a course-level instruction that combines a grade item, a grade condition, an optional source group and a destination group. For example, a course can keep a “Needs resit” group populated with students who have not passed the midterm, while a second rule uses another grade item to maintain a separate group for a later assessment. A source group narrows the students considered by the rule; leaving it unset means all students considered in the course grade report are eligible for evaluation, including students with no grade when the selected condition includes them.
+
+The condition is evaluated against the grade item's pass threshold and whether a final grade exists:
+
+| Condition | Students selected |
+| --- | --- |
+| Passed | A final grade at or above the item's pass threshold |
+| Failed | A final grade below the pass threshold |
+| Failed or no grade | Below the threshold, including students without a grade |
+| Graded | Any student with a final grade |
+| No grade | Students without a final grade |
+
+After a grade changes, Moodle's grade event causes the plugin to reevaluate only rules for that grade item and the affected student. When a student joins a source group, rules sourced from that group are reevaluated for that student; when they leave, the plugin removes them from a destination only if no remaining rule for that destination still justifies their membership. This lets several rules contribute to one destination group without one rule's result undoing another's. Normal group membership events are used, so the result is available to Moodle's group restrictions and communication tools.
+
+Rules are stored with the course in a private, versioned custom-field value. A duplicate is defined by the same destination, source group, grade item and condition; saving that combination updates the existing rule. The plugin rejects newly added rules that would create a cycle between source and destination groups, and uses a request-local re-entry lock while reacting to group events. If a destination group has been deleted, its saved name lets the plugin find or recreate it when that rule is next applied. The “Empty target group before exporting” option is for a one-time export and is not part of a saved automatic rule.
+
+Automatic rules respond to grade and source-group membership events; they do not continuously scan or rebuild every course group. Saving a rule from the grade export page also applies the selected condition to the grade report data loaded for that operation; later grade or source-group events keep the membership current incrementally. Review the rule list in the course grade export page to see its source, destination and current group membership count.
+
 ## Installation
 
 Download a release ZIP from the [Moodle Plugins Directory](https://marketplace.moodle.com/plugins/gradeexport_group) or [GitHub Releases](https://github.com/juacas/moodle-gradeexport_group/releases), install it in `grade/export/group`, and complete installation through the Moodle administration interface.
