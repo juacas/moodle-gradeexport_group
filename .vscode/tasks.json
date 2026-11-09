@@ -8,25 +8,37 @@
       "args": [
         "sync"
       ],
-      "problemMatcher": []
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
     },
     {
-      "label": "Activar vigilancia Watchman para este proyecto",
+      "label": "Activar sincronización y ver actividad en consola",
       "type": "process",
       "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
       "args": [
         "watch"
       ],
-      "problemMatcher": []
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
     },
     {
-      "label": "Detener vigilancia Watchman de este proyecto",
+      "label": "Detener sincronización Watchman",
       "type": "process",
       "command": "${workspaceFolder}/.vscode/sync-moodle.sh",
       "args": [
         "stop"
       ],
-      "problemMatcher": []
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
     }
   ]
 }
