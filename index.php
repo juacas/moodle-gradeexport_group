@@ -52,6 +52,15 @@ $context = context_course::instance($id);
 require_capability('moodle/grade:export', $context);
 require_capability('gradeexport/group:view', $context);
 
+$sitecontext = context_system::instance();
+$isadmin = has_capability('moodle/site:config', $sitecontext);
+$autorulesetting = get_config('gradeexport_group', 'allowautorules');
+$autorulesenabled = $autorulesetting === '1';
+$canmanageautorules = $isadmin || ($autorulesenabled && has_capability('gradeexport/group:manage_autorules', $context));
+if (!$canmanageautorules && ($editrule !== '' || $deleterule !== '')) {
+    require_capability('moodle/site:config', $sitecontext);
+}
+
 $rules = \gradeexport_group\rule_manager::get_rules($course->id);
 if ($deleterule !== '') {
     require_sesskey();
@@ -89,7 +98,8 @@ if ($editrule !== '') {
     $actionurl->param('editrule', $editrule);
 }
 $formoptions = (object)['course' => $course, 'context' => $context, 'id' => $course->id,
-    'editrule' => $editrule, 'rule' => $editrule !== '' ? $rules[$editrule] : null];
+    'editrule' => $editrule, 'rule' => $editrule !== '' ? $rules[$editrule] : null,
+    'canmanageautorules' => $canmanageautorules];
 
 
 $mform = new exportgroup_form($actionurl, $formoptions);
@@ -100,6 +110,9 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('/grade/export/index.php', ['id' => $id]));
 } else if ($data = $mform->get_data()) {
     $oldrulekey = trim((string)($data->editrule ?? ''));
+    if (!$canmanageautorules && ($oldrulekey !== '' || !empty($data->autoupdate))) {
+        require_capability('moodle/site:config', $sitecontext);
+    }
     if ($oldrulekey !== '' && !array_key_exists($oldrulekey, $rules)) {
         throw new \invalid_parameter_exception('Unknown grade export rule.');
     }
@@ -196,8 +209,10 @@ if ($rules) {
         get_string('source', 'gradeexport_group'),
         get_string('gradeitem', 'gradeexport_group'),
         get_string('status', 'gradeexport_group'),
-        get_string('actions'),
     ];
+    if ($canmanageautorules) {
+        $ruletable->head[] = get_string('actions');
+    }
     $grader = new group_export_grader($course->id, '0', $context);
     $itemnames = $grader->get_item_names();
     $groupcounts = [];
@@ -231,21 +246,23 @@ if ($rules) {
                 'id' => $course->id,
             ]), $sourcelabel);
         }
-        $editurl = new moodle_url('/grade/export/group/index.php', ['id' => $id, 'editrule' => $rulekey]);
-        $deleteurl = new moodle_url('/grade/export/group/index.php', [
-            'id' => $id,
-            'deleterule' => $rulekey,
-            'sesskey' => sesskey(),
-        ]);
-        $actions = html_writer::link($editurl, get_string('edit')) . ' | ' .
-            html_writer::link($deleteurl, get_string('delete'));
-        $ruletable->data[] = [
+        $row = [
             $targetlabel,
             $sourcelabel,
             $itemnames[$rule['itemid']] ?? get_string('missingitem', 'gradeexport_group'),
             get_string($rule['status'], 'gradeexport_group'),
-            $actions,
         ];
+        if ($canmanageautorules) {
+            $editurl = new moodle_url('/grade/export/group/index.php', ['id' => $id, 'editrule' => $rulekey]);
+            $deleteurl = new moodle_url('/grade/export/group/index.php', [
+                'id' => $id,
+                'deleterule' => $rulekey,
+                'sesskey' => sesskey(),
+            ]);
+            $row[] = html_writer::link($editurl, get_string('edit')) . ' | ' .
+                html_writer::link($deleteurl, get_string('delete'));
+        }
+        $ruletable->data[] = $row;
     }
     echo html_writer::table($ruletable);
 }

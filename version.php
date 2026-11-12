@@ -19,14 +19,14 @@
  *
  * @package    gradeexport
  * @subpackage group
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
+ * @copyright  2026 Juan Pablo de Castro <juanpablo.decastro@uva.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026110900;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2026111200;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2022111800;        // Requires this Moodle version.
 $plugin->component = 'gradeexport_group'; // Full name of the plugin (used for diagnostics).
-$plugin->release   = 'v2.0.0';
+$plugin->release   = 'v2.0.2';
 $plugin->maturity  = MATURITY_STABLE;
