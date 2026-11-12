@@ -17,10 +17,10 @@
 namespace gradeexport_group\event;
 
 /**
- * TXT grade export events test cases.
+ * Grade export to group events test cases.
  *
  * @package    gradeexport_group
- * @copyright  2016 Zane Karl zkarl@oid.ucla.edu
+ * @copyright  2026 Juan Pablo de Castro <juanpablo.decastro@uva.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class events_test extends \advanced_testcase {

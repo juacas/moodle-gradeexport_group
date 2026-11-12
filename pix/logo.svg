@@ -2,6 +2,6 @@
   <title id="title">Grade groups</title>
   <rect x="3" y="3" width="42" height="42" rx="13" fill="#eaf2ff" stroke="#3b82f6" stroke-width="2"/>
   <path d="M13 15h10M13 20h10M13 25h10M13 30h10M13 35h10" fill="none" stroke="#16304c" stroke-linecap="round" stroke-width="3"/>
-  <circle cx="36" cy="24" r="5" fill="#14b8a6"/>
-  <circle cx="32" cy="33" r="8" fill="#f59e0baa"/>
+  <circle cx="34" cy="20" r="9" fill="#14b8a6"/>
+  <ellipse cx="34" cy="30" rx="8" ry="11" fill="#f59e0baa"/>
 </svg>
