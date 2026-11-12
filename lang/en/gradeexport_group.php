@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['addedtogroup'] = '{$a->added} students added to group <a href="{$a->url}">{$a->groupname}</a>';
+$string['allowautorules'] = 'Allow automatic rule management';
+$string['allowautorules_desc'] = 'Global kill switch for automatic rule management. When disabled, only users with the moodle/site:config capability can manage rules, regardless of the course capability gradeexport/group:manage_autorules. When enabled, users need gradeexport/group:manage_autorules in the course. Existing rules continue to update groups when grades change.';
 $string['approved'] = 'Passed';
 $string['autoupdate'] = 'Automatically update the group when grades change';
 $string['autoupdate_help'] = 'Save this condition as a course rule. You can configure multiple rules; the same target group, source group, grade item and condition combination replaces the existing rule to prevent duplicates.';
@@ -37,6 +39,7 @@ $string['failednograde'] = 'Failed or no grade';
 $string['graded'] = 'Graded';
 $string['gradeitem'] = 'Grade item';
 $string['gradesgroupdescription'] = 'Group with students that has a grade in {$a->itemname}: {$a->status}';
+$string['group:manage_autorules'] = 'Manage automatic grade-to-group rules';
 $string['group:publish'] = 'Publish Group grade export';
 $string['group:view'] = 'Use Group grade export';
 $string['groupdescription'] = 'Description of the target group';

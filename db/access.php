@@ -45,4 +45,14 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+
+    'gradeexport/group:manage_autorules' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

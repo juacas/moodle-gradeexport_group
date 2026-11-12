@@ -22,6 +22,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['addedtogroup'] = 'Se han añadido {$a->added} estudiantes al grupo "<a href="{$a->url}">{$a->groupname}</a>"';
+$string['allowautorules'] = 'Permitir la gestión de reglas automáticas';
+$string['allowautorules_desc'] = 'Interruptor global para desactivar la gestión de reglas automáticas. Al desactivarlo, solo los usuarios con la capacidad moodle/site:config podrán gestionar reglas, independientemente de la capacidad de curso gradeexport/group:manage_autorules. Al activarlo, los usuarios necesitan gradeexport/group:manage_autorules en el curso. Las reglas existentes seguirán actualizando los grupos cuando cambien las calificaciones.';
 $string['approved'] = 'Aprobado';
 $string['autoupdate'] = 'Actualizar automáticamente el grupo al cambiar las calificaciones';
 $string['autoupdate_help'] = 'Guarda esta condición como regla del curso. Puedes configurar varias reglas; la misma combinación de grupo, origen, elemento y criterio se reemplaza para evitar duplicados.';
@@ -37,6 +39,7 @@ $string['failednograde'] = 'Suspenso o sin nota';
 $string['graded'] = 'Calificado';
 $string['gradeitem'] = 'Elemento de calificación';
 $string['gradesgroupdescription'] = 'Grupo con estudiantes que tienen "{$a->itemname}" con calificación: {$a->status}';
+$string['group:manage_autorules'] = 'Gestionar reglas automáticas de calificaciones a grupos';
 $string['group:publish'] = 'Exportar notas a grupo';
 $string['group:view'] = 'Usar exportación de notas a grupo';
 $string['groupdescription'] = 'Descripción del grupo de destino';

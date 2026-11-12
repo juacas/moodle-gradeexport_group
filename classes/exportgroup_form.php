@@ -107,10 +107,12 @@ class exportgroup_form extends \moodleform {
         $mform->addElement('checkbox', 'cleangroup', get_string('cleangroup', 'gradeexport_group'));
         $mform->setDefault('cleangroup', 0);
         $mform->addHelpButton('cleangroup', 'cleangroup', 'gradeexport_group');
-        $mform->addElement('advcheckbox', 'autoupdate', get_string('autoupdate', 'gradeexport_group'));
-        $mform->addHelpButton('autoupdate', 'autoupdate', 'gradeexport_group');
-        $mform->setDefault('autoupdate', 0);
-        $mform->disabledIf('cleangroup', 'autoupdate', 'checked');
+        if (!empty($data->canmanageautorules)) {
+            $mform->addElement('advcheckbox', 'autoupdate', get_string('autoupdate', 'gradeexport_group'));
+            $mform->addHelpButton('autoupdate', 'autoupdate', 'gradeexport_group');
+            $mform->setDefault('autoupdate', 0);
+            $mform->disabledIf('cleangroup', 'autoupdate', 'checked');
+        }
         if (!empty($data->rule)) {
             $rule = $data->rule;
             $targetgroup = groups_get_group((int)$rule['groupid']);
@@ -121,7 +123,9 @@ class exportgroup_form extends \moodleform {
             $mform->setDefault('groupdescription', $targetgroup ? $targetgroup->description : '');
             // Scheduled rules manage memberships incrementally; they never empty the target group.
             $mform->setDefault('cleangroup', 0);
-            $mform->setDefault('autoupdate', 1);
+            if (!empty($data->canmanageautorules)) {
+                $mform->setDefault('autoupdate', 1);
+            }
             $mform->setDefault('editrule', $data->editrule);
         }
         $this->add_action_buttons();
